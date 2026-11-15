@@ -1,0 +1,287 @@
+{
+ "title": "На досуге",
+ "categories": [
+  {
+   "id": "jobs",
+   "emoji": "💼",
+   "title": "ИИ и работа",
+   "items": [
+    {
+     "url": "https://www.youtube.com/watch?v=eSKs9imoOnM",
+     "title": "Искусственный Интеллект НЕ ЗАМЕНИТ человека в ЭТИХ профессиях",
+     "channel": "апвоут",
+     "duration": "12:04",
+     "language": "ru",
+     "kind": "video",
+     "about": "Какие профессии ИИ заменить не сможет и почему.",
+     "verified_at": "2026-11-15",
+     "views": 277338,
+     "published": "20240315"
+    },
+    {
+     "url": "https://www.youtube.com/watch?v=LqPKkUMLqfU",
+     "title": "ИИ ЗАБЕРЁТ твою работу к 2027 | Экс-директор Google X",
+     "channel": "Глеб Соломин",
+     "duration": "90:49",
+     "language": "ru",
+     "kind": "podcast",
+     "about": "Большой подкаст с экс-директором Google X о том, как ИИ изменит работу.",
+     "verified_at": "2026-11-15",
+     "views": 1256304,
+     "published": "20261029"
+    },
+    {
+     "url": "https://www.youtube.com/watch?v=yv6a7TpKQy8",
+     "title": "Как ИИ дойдёт до сверхразума: прогноз, который напугал Кремниевую долину",
+     "channel": "Визионеры",
+     "duration": "60:22",
+     "language": "ru",
+     "kind": "podcast",
+     "about": "Разбор прогноза «AI 2027»: что будет, если ИИ станет умнее людей.",
+     "verified_at": "2026-11-15",
+     "views": 559809,
+     "published": "20260904"
+    }
+   ]
+  },
+  {
+   "id": "agents",
+   "emoji": "🤖",
+   "title": "ИИ-агенты и бизнес",
+   "items": [
+    {
+     "url": "https://www.youtube.com/watch?v=29faSqC3ykU",
+     "title": "Команда AI-агентов УПРАВЛЯЕТ БИЗНЕСОМ без меня",
+     "channel": "ИИздец",
+     "duration": "30:06",
+     "language": "ru",
+     "kind": "video",
+     "about": "Как команда ИИ-агентов ведёт бизнес вместо человека. ⚠️ Смотри ради идей. Автор продаёт платные каналы и курсы — ничего не покупай и не переводи деньги.",
+     "verified_at": "2026-11-15",
+     "views": 28474,
+     "published": "20260929"
+    },
+    {
+     "url": "https://www.youtube.com/watch?v=Dr02MPRSSGU",
+     "title": "Создай своего ИИ агента за 20 минут (сможет каждый)",
+     "channel": "Steven Osenia",
+     "duration": "29:13",
+     "language": "ru",
+     "kind": "video",
+     "about": "Пошагово: как собрать своего первого ИИ-агента.",
+     "verified_at": "2026-11-15",
+     "views": 505438,
+     "published": "20250411"
+    },
+    {
+     "url": "https://www.youtube.com/watch?v=Os5aEWojxDA",
+     "title": "Глава OpenAI про новую эру стартапов, ИИ-агентов и суперинтеллект",
+     "channel": "AI из первых уст",
+     "duration": "71:36",
+     "language": "ru",
+     "kind": "podcast",
+     "about": "Интервью главы OpenAI (на русском) про агентов и стартапы.",
+     "verified_at": "2026-11-15",
+     "views": 129911,
+     "published": "20260818"
+    }
+   ]
+  },
+  {
+   "id": "build",
+   "emoji": "🛠",
+   "title": "Создаём с помощью ИИ",
+   "items": [
+    {
+     "url": "https://www.youtube.com/watch?v=ph3o98HCD3k",
+     "title": "Я провёл в Claude Code 6000+ часов. Тут всё, что тебе нужно",
+     "channel": "ИИздец",
+     "duration": "48:05",
+     "language": "ru",
+     "kind": "video",
+     "about": "Человек провёл 6000+ часов в Claude Code и делится опытом. ⚠️ Смотри ради идей. Автор продаёт платные каналы и курсы — ничего не покупай и не переводи деньги.",
+     "verified_at": "2026-11-15",
+     "views": 56211,
+     "published": "20260924"
+    },
+    {
+     "url": "https://www.youtube.com/watch?v=w3K1EguBrTc",
+     "title": "Что такое ВАЙБ КОДИНГ | САМОЕ ЛУЧШЕЕ ОБЪЯСНЕНИЕ",
+     "channel": "Web3nity",
+     "duration": "7:23",
+     "language": "ru",
+     "kind": "video",
+     "about": "Что такое вайб-кодинг — понятное объяснение.",
+     "verified_at": "2026-11-15",
+     "views": 97655,
+     "published": "20250720"
+    },
+    {
+     "url": "https://www.youtube.com/watch?v=oYf_9QGH62w",
+     "title": "ВАЙБ КОДИНГ - полный ГАЙД как не стать КЛОУНОМ. Как выжить в эпоху ИИ?",
+     "channel": "Yugo",
+     "duration": "11:29",
+     "language": "ru",
+     "kind": "video",
+     "about": "Как программировать с ИИ и не наделать глупостей.",
+     "verified_at": "2026-11-15",
+     "views": 445235,
+     "published": "20250526"
+    },
+    {
+     "url": "https://www.youtube.com/watch?v=erdJvTR0hcU",
+     "title": "Claude на МАКСИМУМ — полный гайд за 11 минут!",
+     "channel": "Elton Labs.",
+     "duration": "11:40",
+     "language": "ru",
+     "kind": "video",
+     "about": "Все функции Claude за 11 минут. Сам Claude.ai — только с 18 лет, но знать полезно.",
+     "verified_at": "2026-11-15",
+     "views": 462840,
+     "published": "20250727"
+    }
+   ]
+  },
+  {
+   "id": "how",
+   "emoji": "🧠",
+   "title": "Как устроен ИИ",
+   "items": [
+    {
+     "url": "https://www.youtube.com/watch?v=RJCIYBAAiEI",
+     "title": "[DeepLearning | видео 1] Что же такое нейронная сеть?",
+     "channel": "3Blue1Brown translated by Sciberia",
+     "duration": "19:00",
+     "language": "ru",
+     "kind": "video",
+     "about": "Легендарное объяснение нейросети от 3Blue1Brown (русский перевод).",
+     "verified_at": "2026-11-15",
+     "views": 932812,
+     "published": "20190129"
+    },
+    {
+     "url": "https://www.youtube.com/watch?v=VVfFf_XW8zw",
+     "title": "Как работает ChatGPT: объясняем нейросети просто",
+     "channel": "RationalAnswer | Павел Комаровский",
+     "duration": "39:04",
+     "language": "ru",
+     "kind": "video",
+     "about": "Как работает ChatGPT — подробно и без воды.",
+     "verified_at": "2026-11-15",
+     "views": 1986227,
+     "published": "20230405"
+    },
+    {
+     "url": "https://www.youtube.com/watch?v=HR7hD8TO4Z8",
+     "title": "Весь ИИ за 24 минуты. Как он РЕАЛЬНО работает",
+     "channel": "Макс Нечаев",
+     "duration": "24:07",
+     "language": "ru",
+     "kind": "video",
+     "about": "Весь ИИ за 24 минуты: от нейрона до ChatGPT.",
+     "verified_at": "2026-11-15",
+     "views": 855144,
+     "published": "20261020"
+    },
+    {
+     "url": "https://www.youtube.com/watch?v=LPZh9BOjkQs",
+     "title": "Large Language Models explained briefly",
+     "channel": "3Blue1Brown",
+     "duration": "7:58",
+     "language": "en",
+     "kind": "video",
+     "about": "Коротко про большие языковые модели. Очень наглядно.",
+     "verified_at": "2026-11-15",
+     "views": 8575355,
+     "published": "20241120"
+    },
+    {
+     "url": "https://www.youtube.com/watch?v=aircAruvnKk",
+     "title": "But what is a neural network? | Deep learning chapter 1",
+     "channel": "3Blue1Brown",
+     "duration": "18:40",
+     "language": "en",
+     "kind": "video",
+     "about": "Оригинал: что такое нейронная сеть (25 млн просмотров).",
+     "verified_at": "2026-11-15",
+     "views": 25272059,
+     "published": "20171005"
+    }
+   ]
+  },
+  {
+   "id": "podcasts",
+   "emoji": "🎙",
+   "title": "Подкасты о технологиях",
+   "items": [
+    {
+     "url": "https://www.youtube.com/watch?v=PzqcMkL95X4",
+     "title": "Всё, что нужно знать про будущее c ИИ. Компании-монополисты, ИИ вместо бизнесменов и войны роботов",
+     "channel": "Александр Соколовский",
+     "duration": "143:18",
+     "language": "ru",
+     "kind": "podcast",
+     "about": "Длинный разговор о будущем с ИИ: монополии, роботы, бизнес.",
+     "verified_at": "2026-11-15",
+     "views": 590268,
+     "published": "20260826"
+    },
+    {
+     "url": "https://www.youtube.com/watch?v=WrmW_d5NHOg",
+     "title": "МОЗГ ПРОТИВ НЕЙРОСЕТЕЙ. КТО УМНЕЕ? Семихатов, Сурдин, Марков",
+     "channel": "Вселенная Плюс",
+     "duration": "96:57",
+     "language": "ru",
+     "kind": "podcast",
+     "about": "Учёные спорят: мозг или нейросеть — кто умнее?",
+     "verified_at": "2026-11-15",
+     "views": 1040203,
+     "published": "20250630"
+    }
+   ]
+  },
+  {
+   "id": "learn",
+   "emoji": "🚀",
+   "title": "Мотивация и как учиться",
+   "items": [
+    {
+     "url": "https://www.youtube.com/watch?v=SWncJ4HEaLs",
+     "title": "Научи себя чему угодно. Полный гайд о том, как учиться самостоятельно",
+     "channel": "Erkaiym Saparalieva",
+     "duration": "19:17",
+     "language": "ru",
+     "kind": "video",
+     "about": "Как научиться чему угодно самостоятельно.",
+     "verified_at": "2026-11-15",
+     "views": 237757,
+     "published": "20251219"
+    },
+    {
+     "url": "https://www.youtube.com/watch?v=sVMrA7O7zXU",
+     "title": "Как учиться и запоминать БЫСТРЕЕ",
+     "channel": "КНИГАНТ",
+     "duration": "10:45",
+     "language": "ru",
+     "kind": "video",
+     "about": "Научные приёмы, чтобы учиться и запоминать быстрее.",
+     "verified_at": "2026-11-15",
+     "views": 149435,
+     "published": "20221023"
+    },
+    {
+     "url": "https://www.youtube.com/watch?v=LMkCyfR_Cw0",
+     "title": "Как перестать прокрастинировать и начать учиться (с кайфом)",
+     "channel": "Обычный Обезьян",
+     "duration": "6:30",
+     "language": "ru",
+     "kind": "video",
+     "about": "Как перестать откладывать и начать учиться с удовольствием.",
+     "verified_at": "2026-11-15",
+     "views": 42156,
+     "published": "20261031"
+    }
+   ]
+  }
+ ]
+}

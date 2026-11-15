@@ -40,3 +40,28 @@ top comments instead.
 ### Facts to double-check
 - m1w2l5: A18 Pro = 6-core CPU (2 performance + 4 efficiency), GPU, 16-core Neural Engine.
 - m1w3l1: iPhone 16 Pro Max has 8 GB RAM.
+
+## «На досуге» (content/library.json) — 20 items, all verified 2026-11-15
+- **Required ИИздец videos:** found and verified.
+  - «Я провёл в Claude Code 6000+ часов. Тут всё, что тебе нужно» (48:05, 56k views).
+  - «Команда AI-агентов УПРАВЛЯЕТ БИЗНЕСОМ без меня» (30:06, 28k views).
+- ⚠️ **Please decide:** other channels have published exposés claiming the ИИздец author sells paid
+  Telegram channels and courses deceptively. Example: Гилт, «ИИздец / ТОМ КРОКОДИЛ … развод на доверии», 18k views,
+  with commenters saying they lost money. The two videos are included as you asked, each with a visible warning:
+  «ничего не покупай и не переводи деньги». To remove them, delete the two entries from `content/library.json`.
+- **«ИИ заберёт работу в 2026» from the same creators:** not found on the ИИздец channel, so it was not added.
+  The jobs category uses other well-received videos instead, for example the Глеб Соломин podcast with ex-Google X Mo Gawdat (1.26M views).
+- **English items (flagged 🇬🇧 with a subtitles hint):** 2 videos by 3Blue1Brown.
+- **Spotify / YouTube Music links:** none added, because none could be verified without a browser. The YouTube links work in the YouTube Music app too.
+- **Rejected on purpose:**
+  - Droider «Как на самом деле работает нейросеть»: a comment shows an online-casino ad inside the video.
+  - Videos whose pinned comment is a sales funnel: «бесплатная AI-диагностика бизнеса» and a «заработал $… в 19 лет» Claude Code video.
+
+## «Модели ИИ» (content/ai_models.json)
+- **Age rules (checked 2026-11-15):**
+  - Claude.ai consumer terms require **18+**.
+  - ChatGPT is 13+ with parental consent.
+  - Gemini teen rules vary by country.
+  
+  So the course tells the student to use **free ChatGPT or Gemini**, and Claude is described but not recommended.
+- **Prices:** written as ranges ("about $8–20/month") so they don't go stale. No exact model versions are named.
