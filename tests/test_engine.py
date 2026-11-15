@@ -171,8 +171,11 @@ class Selection(unittest.TestCase):
             qs = C.select_questions("m1w1l1", rng)
             self.assertEqual(len(qs), 5)
             self.assertEqual(len({q["q"] for q in qs}), 5)
+            bank = {b["q"]: b for b in C.lessons["m1w1l1"]["questions"]}
             for q in qs:
-                self.assertTrue(q["options"][q["correct"]].startswith("right"))
+                orig = bank[q["q"]]
+                self.assertEqual(q["options"][q["correct"]], orig["options"][orig["correct"]])
+                self.assertEqual(sorted(q["options"]), sorted(orig["options"]))
             seen_orders.add(tuple(q["q"] for q in qs))
         self.assertGreater(len(seen_orders), 1)
 

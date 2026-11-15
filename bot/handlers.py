@@ -230,7 +230,8 @@ async def callbacks(cb: CallbackQuery):
         it = c.by_id[arg]
         if not a["answers"]:
             await cb.message.answer(t("quiz_start", title=e(it.title), n=len(a["questions"]), need=c.pass_marks[it.kind]))
-        await cb.message.answer(*render.question(a))
+        qt, qk = render.question(a)
+        await cb.message.answer(qt, reply_markup=qk)
     elif kind == "qa":
         try:
             aid, qidx, opt = (int(x) for x in arg.split(":"))
