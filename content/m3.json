@@ -1,0 +1,131 @@
+{
+ "id": "m3",
+ "emoji": "🐍",
+ "title": "Основы программирования",
+ "weeks": [
+  {
+   "id": "m3w1",
+   "title": "Первые шаги в Python",
+   "lessons": [
+    {
+     "id": "m3w1l1",
+     "title": "Что такое код и программа",
+     "status": "outline"
+    },
+    {
+     "id": "m3w1l2",
+     "title": "Алгоритмы: рецепт для компьютера",
+     "status": "outline"
+    },
+    {
+     "id": "m3w1l3",
+     "title": "Python: где писать код на iPhone",
+     "status": "outline"
+    },
+    {
+     "id": "m3w1l4",
+     "title": "Переменные и типы данных",
+     "status": "outline"
+    },
+    {
+     "id": "m3w1l5",
+     "title": "print и input: программа говорит и слушает",
+     "status": "outline"
+    }
+   ]
+  },
+  {
+   "id": "m3w2",
+   "title": "Условия, циклы, функции",
+   "lessons": [
+    {
+     "id": "m3w2l1",
+     "title": "Условия: if, elif, else",
+     "status": "outline"
+    },
+    {
+     "id": "m3w2l2",
+     "title": "Цикл for",
+     "status": "outline"
+    },
+    {
+     "id": "m3w2l3",
+     "title": "Цикл while",
+     "status": "outline"
+    },
+    {
+     "id": "m3w2l4",
+     "title": "Функции: свои команды",
+     "status": "outline"
+    },
+    {
+     "id": "m3w2l5",
+     "title": "Практика: игра «Угадай число»",
+     "status": "outline"
+    }
+   ]
+  },
+  {
+   "id": "m3w3",
+   "title": "Данные и библиотеки",
+   "lessons": [
+    {
+     "id": "m3w3l1",
+     "title": "Списки",
+     "status": "outline"
+    },
+    {
+     "id": "m3w3l2",
+     "title": "Словари",
+     "status": "outline"
+    },
+    {
+     "id": "m3w3l3",
+     "title": "Файлы: чтение и запись",
+     "status": "outline"
+    },
+    {
+     "id": "m3w3l4",
+     "title": "Библиотеки и как читать ошибки",
+     "status": "outline"
+    },
+    {
+     "id": "m3w3l5",
+     "title": "Первый запрос к веб-API",
+     "status": "outline"
+    }
+   ]
+  },
+  {
+   "id": "m3w4",
+   "title": "Веб и языки программирования",
+   "lessons": [
+    {
+     "id": "m3w4l1",
+     "title": "HTML: скелет сайта",
+     "status": "outline"
+    },
+    {
+     "id": "m3w4l2",
+     "title": "CSS: одежда сайта",
+     "status": "outline"
+    },
+    {
+     "id": "m3w4l3",
+     "title": "JavaScript: мышцы сайта",
+     "status": "outline"
+    },
+    {
+     "id": "m3w4l4",
+     "title": "Языки: Python, JavaScript, TypeScript, C/C++, Java/Kotlin",
+     "status": "outline"
+    },
+    {
+     "id": "m3w4l5",
+     "title": "Языки: Swift, Rust, Go, SQL — что для чего",
+     "status": "outline"
+    }
+   ]
+  }
+ ]
+}

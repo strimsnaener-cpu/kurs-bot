@@ -1,0 +1,25 @@
+{
+ "lang": "ru",
+ "title": "С нуля до ИИ",
+ "modules": [
+  "m1.json",
+  "m2.json",
+  "m3.json",
+  "m4.json",
+  "m5.json",
+  "m6.json"
+ ],
+ "pass_marks": {
+  "lesson": 40,
+  "week": 50,
+  "month": 60,
+  "final": 60
+ },
+ "question_counts": {
+  "lesson": 5,
+  "week": 10,
+  "month": 20,
+  "final": 30
+ },
+ "pace_lessons_per_week": 5
+}

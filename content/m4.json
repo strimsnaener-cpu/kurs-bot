@@ -1,0 +1,131 @@
+{
+ "id": "m4",
+ "emoji": "🧠",
+ "title": "Основы искусственного интеллекта",
+ "weeks": [
+  {
+   "id": "m4w1",
+   "title": "Что такое ИИ",
+   "lessons": [
+    {
+     "id": "m4w1l1",
+     "title": "ИИ, машинное обучение и глубокое обучение",
+     "status": "outline"
+    },
+    {
+     "id": "m4w1l2",
+     "title": "Нейросеть простыми словами",
+     "status": "outline"
+    },
+    {
+     "id": "m4w1l3",
+     "title": "Как модель учится",
+     "status": "outline"
+    },
+    {
+     "id": "m4w1l4",
+     "title": "Обучение и использование модели",
+     "status": "outline"
+    },
+    {
+     "id": "m4w1l5",
+     "title": "Где ИИ уже вокруг нас",
+     "status": "outline"
+    }
+   ]
+  },
+  {
+   "id": "m4w2",
+   "title": "Языковые модели",
+   "lessons": [
+    {
+     "id": "m4w2l1",
+     "title": "Большие языковые модели (LLM)",
+     "status": "outline"
+    },
+    {
+     "id": "m4w2l2",
+     "title": "Токены: из чего модель читает текст",
+     "status": "outline"
+    },
+    {
+     "id": "m4w2l3",
+     "title": "Контекстное окно: память разговора",
+     "status": "outline"
+    },
+    {
+     "id": "m4w2l4",
+     "title": "Как работает ИИ-ассистент вроде ChatGPT",
+     "status": "outline"
+    },
+    {
+     "id": "m4w2l5",
+     "title": "Галлюцинации: почему ИИ ошибается",
+     "status": "outline"
+    }
+   ]
+  },
+  {
+   "id": "m4w3",
+   "title": "Мир моделей",
+   "lessons": [
+    {
+     "id": "m4w3l1",
+     "title": "Claude, GPT, Gemini: большая тройка",
+     "status": "outline"
+    },
+    {
+     "id": "m4w3l2",
+     "title": "DeepSeek и открытые модели: Llama, Qwen, Mistral",
+     "status": "outline"
+    },
+    {
+     "id": "m4w3l3",
+     "title": "Модели для картинок, видео и голоса",
+     "status": "outline"
+    },
+    {
+     "id": "m4w3l4",
+     "title": "Бесплатно или платно: как выбрать модель",
+     "status": "outline"
+    },
+    {
+     "id": "m4w3l5",
+     "title": "Сильные и слабые стороны моделей",
+     "status": "outline"
+    }
+   ]
+  },
+  {
+   "id": "m4w4",
+   "title": "Как правильно пользоваться ИИ",
+   "lessons": [
+    {
+     "id": "m4w4l1",
+     "title": "Промптинг: как правильно просить ИИ",
+     "status": "outline"
+    },
+    {
+     "id": "m4w4l2",
+     "title": "Приёмы: роль, примеры, шаги",
+     "status": "outline"
+    },
+    {
+     "id": "m4w4l3",
+     "title": "Как проверять ответы ИИ",
+     "status": "outline"
+    },
+    {
+     "id": "m4w4l4",
+     "title": "Приватность и безопасность с ИИ",
+     "status": "outline"
+    },
+    {
+     "id": "m4w4l5",
+     "title": "Этика и авторское право",
+     "status": "outline"
+    }
+   ]
+  }
+ ]
+}

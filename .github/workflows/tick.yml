@@ -1,0 +1,17 @@
+# Calls the bot's /tick every 10 minutes: keeps the free Render service awake and runs
+# reminders / the weekly digest. Needs repo secrets BOT_URL and TICK_SECRET.
+name: tick
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: ping /tick
+        env:
+          BOT_URL: ${{ secrets.BOT_URL }}
+          TICK_SECRET: ${{ secrets.TICK_SECRET }}
+        run: curl -fsS --max-time 90 -H "X-Tick-Secret: $TICK_SECRET" "$BOT_URL/tick" -o /dev/null -w "%{http_code}\n"

@@ -1,0 +1,131 @@
+{
+ "id": "m2",
+ "emoji": "🌐",
+ "title": "Интернет, серверы, VPN и безопасность",
+ "weeks": [
+  {
+   "id": "m2w1",
+   "title": "Как работает интернет",
+   "lessons": [
+    {
+     "id": "m2w1l1",
+     "title": "Интернет: сеть из сетей",
+     "status": "outline"
+    },
+    {
+     "id": "m2w1l2",
+     "title": "IP-адрес: домашний адрес устройства",
+     "status": "outline"
+    },
+    {
+     "id": "m2w1l3",
+     "title": "DNS: телефонная книга интернета",
+     "status": "outline"
+    },
+    {
+     "id": "m2w1l4",
+     "title": "HTTP и HTTPS: как браузер говорит с сайтом",
+     "status": "outline"
+    },
+    {
+     "id": "m2w1l5",
+     "title": "Что происходит, когда ты открываешь сайт",
+     "status": "outline"
+    }
+   ]
+  },
+  {
+   "id": "m2w2",
+   "title": "Серверы и облака",
+   "lessons": [
+    {
+     "id": "m2w2l1",
+     "title": "Что такое сервер",
+     "status": "outline"
+    },
+    {
+     "id": "m2w2l2",
+     "title": "Хостинг и облако",
+     "status": "outline"
+    },
+    {
+     "id": "m2w2l3",
+     "title": "VPS: свой компьютер в аренду",
+     "status": "outline"
+    },
+    {
+     "id": "m2w2l4",
+     "title": "Контейнеры: коробки для программ",
+     "status": "outline"
+    },
+    {
+     "id": "m2w2l5",
+     "title": "Что значит «задеплоить»",
+     "status": "outline"
+    }
+   ]
+  },
+  {
+   "id": "m2w3",
+   "title": "Безопасность в сети",
+   "lessons": [
+    {
+     "id": "m2w3l1",
+     "title": "Шифрование: секретные письма",
+     "status": "outline"
+    },
+    {
+     "id": "m2w3l2",
+     "title": "HTTPS-сертификаты и замочек в браузере",
+     "status": "outline"
+    },
+    {
+     "id": "m2w3l3",
+     "title": "VPN и прокси: что это и зачем",
+     "status": "outline"
+    },
+    {
+     "id": "m2w3l4",
+     "title": "Пароли, менеджер паролей и 2FA",
+     "status": "outline"
+    },
+    {
+     "id": "m2w3l5",
+     "title": "Фишинг и мошенники: как не попасться",
+     "status": "outline"
+    }
+   ]
+  },
+  {
+   "id": "m2w4",
+   "title": "Инструменты разработчика",
+   "lessons": [
+    {
+     "id": "m2w4l1",
+     "title": "Командная строка: разговор с компьютером текстом",
+     "status": "outline"
+    },
+    {
+     "id": "m2w4l2",
+     "title": "Linux для начинающих",
+     "status": "outline"
+    },
+    {
+     "id": "m2w4l3",
+     "title": "Git: машина времени для кода",
+     "status": "outline"
+    },
+    {
+     "id": "m2w4l4",
+     "title": "GitHub: дом для кода",
+     "status": "outline"
+    },
+    {
+     "id": "m2w4l5",
+     "title": "API и API-ключи: как программы общаются",
+     "status": "outline"
+    }
+   ]
+  }
+ ]
+}

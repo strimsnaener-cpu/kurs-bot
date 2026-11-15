@@ -1,0 +1,131 @@
+{
+ "id": "m6",
+ "emoji": "🚀",
+ "title": "Твой первый проект",
+ "weeks": [
+  {
+   "id": "m6w1",
+   "title": "Идея и план",
+   "lessons": [
+    {
+     "id": "m6w1l1",
+     "title": "Выбираем идею",
+     "status": "outline"
+    },
+    {
+     "id": "m6w1l2",
+     "title": "Маленький план: что такое MVP",
+     "status": "outline"
+    },
+    {
+     "id": "m6w1l3",
+     "title": "Пишем техническое задание",
+     "status": "outline"
+    },
+    {
+     "id": "m6w1l4",
+     "title": "Дизайн: как это будет выглядеть",
+     "status": "outline"
+    },
+    {
+     "id": "m6w1l5",
+     "title": "Бюджет: делаем за 0 гривен",
+     "status": "outline"
+    }
+   ]
+  },
+  {
+   "id": "m6w2",
+   "title": "Строим MVP",
+   "lessons": [
+    {
+     "id": "m6w2l1",
+     "title": "Готовим инструменты",
+     "status": "outline"
+    },
+    {
+     "id": "m6w2l2",
+     "title": "Первая версия с помощью ИИ",
+     "status": "outline"
+    },
+    {
+     "id": "m6w2l3",
+     "title": "Добавляем главные функции",
+     "status": "outline"
+    },
+    {
+     "id": "m6w2l4",
+     "title": "Исправляем ошибки",
+     "status": "outline"
+    },
+    {
+     "id": "m6w2l5",
+     "title": "Показываем первую версию",
+     "status": "outline"
+    }
+   ]
+  },
+  {
+   "id": "m6w3",
+   "title": "Запуск",
+   "lessons": [
+    {
+     "id": "m6w3l1",
+     "title": "Деплой: выкладываем в интернет",
+     "status": "outline"
+    },
+    {
+     "id": "m6w3l2",
+     "title": "GitHub Pages, Render или Telegram-бот",
+     "status": "outline"
+    },
+    {
+     "id": "m6w3l3",
+     "title": "Тестируем на реальных людях",
+     "status": "outline"
+    },
+    {
+     "id": "m6w3l4",
+     "title": "Собираем отзывы",
+     "status": "outline"
+    },
+    {
+     "id": "m6w3l5",
+     "title": "Исправляем по отзывам",
+     "status": "outline"
+    }
+   ]
+  },
+  {
+   "id": "m6w4",
+   "title": "Финиш",
+   "lessons": [
+    {
+     "id": "m6w4l1",
+     "title": "Полируем проект",
+     "status": "outline"
+    },
+    {
+     "id": "m6w4l2",
+     "title": "Готовим презентацию",
+     "status": "outline"
+    },
+    {
+     "id": "m6w4l3",
+     "title": "Презентуем проект",
+     "status": "outline"
+    },
+    {
+     "id": "m6w4l4",
+     "title": "Готовимся к финальному экзамену",
+     "status": "outline"
+    },
+    {
+     "id": "m6w4l5",
+     "title": "Что дальше: план обучения и портфолио",
+     "status": "outline"
+    }
+   ]
+  }
+ ]
+}

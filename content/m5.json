@@ -1,0 +1,131 @@
+{
+ "id": "m5",
+ "emoji": "🛠",
+ "title": "Создаём вещи с помощью ИИ",
+ "weeks": [
+  {
+   "id": "m5w1",
+   "title": "Кодим вместе с ИИ",
+   "lessons": [
+    {
+     "id": "m5w1l1",
+     "title": "ИИ-помощники для кода",
+     "status": "outline"
+    },
+    {
+     "id": "m5w1l2",
+     "title": "Вайб-кодинг: программирование словами",
+     "status": "outline"
+    },
+    {
+     "id": "m5w1l3",
+     "title": "Как попросить ИИ написать код",
+     "status": "outline"
+    },
+    {
+     "id": "m5w1l4",
+     "title": "Как описать баг",
+     "status": "outline"
+    },
+    {
+     "id": "m5w1l5",
+     "title": "Как читать сообщение об ошибке",
+     "status": "outline"
+    }
+   ]
+  },
+  {
+   "id": "m5w2",
+   "title": "Инструменты",
+   "lessons": [
+    {
+     "id": "m5w2l1",
+     "title": "Claude и ChatGPT для разработки",
+     "status": "outline"
+    },
+    {
+     "id": "m5w2l2",
+     "title": "Cursor и GitHub Copilot",
+     "status": "outline"
+    },
+    {
+     "id": "m5w2l3",
+     "title": "Replit: код прямо в браузере",
+     "status": "outline"
+    },
+    {
+     "id": "m5w2l4",
+     "title": "ИИ-агенты для кода: Codex и Claude Code",
+     "status": "outline"
+    },
+    {
+     "id": "m5w2l5",
+     "title": "Что можно с телефона, а что — только с компьютера",
+     "status": "outline"
+    }
+   ]
+  },
+  {
+   "id": "m5w3",
+   "title": "Агенты и автоматизация",
+   "lessons": [
+    {
+     "id": "m5w3l1",
+     "title": "ИИ-агенты: модели с инструментами",
+     "status": "outline"
+    },
+    {
+     "id": "m5w3l2",
+     "title": "MCP: USB-порт для ИИ",
+     "status": "outline"
+    },
+    {
+     "id": "m5w3l3",
+     "title": "Автоматизация: n8n и Zapier",
+     "status": "outline"
+    },
+    {
+     "id": "m5w3l4",
+     "title": "Сколько стоит ИИ: токены и цены",
+     "status": "outline"
+    },
+    {
+     "id": "m5w3l5",
+     "title": "Как никогда не слить API-ключ",
+     "status": "outline"
+    }
+   ]
+  },
+  {
+   "id": "m5w4",
+   "title": "Привычки разработчика",
+   "lessons": [
+    {
+     "id": "m5w4l1",
+     "title": "Git на практике",
+     "status": "outline"
+    },
+    {
+     "id": "m5w4l2",
+     "title": "Отладка: охота на баги",
+     "status": "outline"
+    },
+    {
+     "id": "m5w4l3",
+     "title": "Тесты: проверяем, что всё работает",
+     "status": "outline"
+    },
+    {
+     "id": "m5w4l4",
+     "title": "Привычки безопасности",
+     "status": "outline"
+    },
+    {
+     "id": "m5w4l5",
+     "title": "Мини-проект: собираем вместе",
+     "status": "outline"
+    }
+   ]
+  }
+ ]
+}
