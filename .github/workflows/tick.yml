@@ -14,4 +14,6 @@ jobs:
         env:
           BOT_URL: ${{ secrets.BOT_URL }}
           TICK_SECRET: ${{ secrets.TICK_SECRET }}
-        run: curl -fsS --max-time 90 -H "X-Tick-Secret: $TICK_SECRET" "$BOT_URL/tick" -o /dev/null -w "%{http_code}\n"
+        run: |
+          if [ -z "$BOT_URL" ]; then echo "BOT_URL secret not set yet"; exit 0; fi
+          curl -fsS --max-time 90 -H "X-Tick-Secret: $TICK_SECRET" "$BOT_URL/tick" -o /dev/null -w "%{http_code}\n"
