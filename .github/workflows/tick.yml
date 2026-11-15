@@ -1,9 +1,9 @@
-# Calls the bot's /tick every 10 minutes: keeps the free Render service awake and runs
+# Calls the bot's /tick on a schedule: wakes the free Render service and runs
 # reminders / the weekly digest. Needs repo secrets BOT_URL and TICK_SECRET.
 name: tick
 on:
   schedule:
-    - cron: "*/10 * * * *"
+    - cron: "7 */3 * * *"   # every 3 h (economy mode; use */10 to keep the bot always awake)
   workflow_dispatch:
 jobs:
   tick:

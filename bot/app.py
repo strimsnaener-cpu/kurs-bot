@@ -71,7 +71,7 @@ async def self_ping(app):
                     await http.get(config.PUBLIC_URL + "/health", timeout=20)
                 except Exception:
                     pass
-    if config.PUBLIC_URL:
+    if config.PUBLIC_URL and config.SELF_PING:
         app["ping"] = asyncio.create_task(loop())
 
 

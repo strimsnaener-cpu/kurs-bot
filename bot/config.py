@@ -34,6 +34,8 @@ INVITE_CODE = _env("INVITE_CODE")
 TEST_MODE = _env("TEST_MODE", "0").lower() in ("1", "true", "yes")
 PUBLIC_URL = (_env("PUBLIC_URL") or _env("RENDER_EXTERNAL_URL")).rstrip("/")
 PORT = int(_env("PORT", "10000"))
+# 1 = ping own /health every 10 min to never sleep (costs ~720 free Render hours/month)
+SELF_PING = _env("SELF_PING", "1") == "1"
 
 TZ = ZoneInfo("Europe/Kyiv")
 QUIET_FROM, QUIET_TO = 21, 9          # no reminders 21:00-09:00 Kyiv time
