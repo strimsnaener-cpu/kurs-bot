@@ -18,11 +18,30 @@ def _ago(now: datetime, then: datetime) -> str:
     return "сегодня" if d == 0 else f"{d} дн. назад"
 
 
-async def dashboard(engine: en.Engine, now: datetime) -> str:
-    s, c = engine.s, engine.c
-    st_user = await s.get_student()
-    if not st_user:
-        return f"👑 <b>Панель</b>\n\nУченик ещё не зарегистрировался.\nКод приглашения задан: {'да' if config.INVITE_CODE else 'НЕТ'}"
+async def dashboard(engine: en.Engine, now: datetime, who: str = "") -> str:
+    students = await engine.s.get_students()
+    if not students:
+        return f"👑 <b>Панель</b>\n\nЕщё никто не зарегистрировался.\nКод приглашения задан: {'да' if config.INVITE_CODE else 'НЕТ'}"
+    who = who.strip().lower()
+    if who:
+        found = [u for u in students if who == str(u["id"]) or who == (u["first_name"] or "").lower()]
+        if found:
+            return await student_card(engine, found[0], now)
+    if len(students) == 1:
+        return await student_card(engine, students[0], now)
+    lines = [f"👑 <b>Панель — учеников: {len(students)}</b>\n"]
+    for u in students:
+        st = await engine.stats(u["id"], now)
+        cur = st["current"]
+        where = f"<code>{cur.id}</code>" if cur else "🎓 пройден"
+        lines.append(f"• <b>{e(u['first_name'])}</b> (id <code>{u['id']}</code>) — {st['percent']}% · {where} · "
+                     f"⭐ {st['xp']} · активность {_ago(now, u['last_active'])}")
+    lines.append("\nПодробно: /admin id  ·  в /unlock, /reset_quiz допиши id или имя в конце")
+    return "\n".join(lines)
+
+
+async def student_card(engine: en.Engine, st_user: dict, now: datetime) -> str:
+    c = engine.c
     st = await engine.stats(st_user["id"], now)
     u = st["user"]
     cur = st["current"]
@@ -53,24 +72,40 @@ async def dashboard(engine: en.Engine, now: datetime) -> str:
 
 
 async def digest(engine: en.Engine, now: datetime) -> str:
-    st_user = await engine.s.get_student()
-    week = await engine.s.attempts_since(st_user["id"], now - timedelta(days=7))
-    passed = sorted({a["item_id"] for a in week if a["passed"]})
-    scores = [a["score"] for a in week]
-    avg = round(sum(scores) / len(scores)) if scores else "—"
-    head = (f"🗞 <b>Итоги недели</b>\nПройдено шагов: {len(passed)} · попыток: {len(week)} · средний балл: {avg}\n"
-            f"Неудачных попыток: {sum(1 for a in week if not a['passed'])}\n\n")
-    return head + await dashboard(engine, now)
+    parts = ["🗞 <b>Итоги недели</b>"]
+    for u in await engine.s.get_students():
+        week = await engine.s.attempts_since(u["id"], now - timedelta(days=7))
+        passed = sorted({a["item_id"] for a in week if a["passed"]})
+        scores = [a["score"] for a in week]
+        avg = round(sum(scores) / len(scores)) if scores else "—"
+        parts.append(f"<b>{e(u['first_name'])}</b>: шагов {len(passed)} · попыток {len(week)} · средний {avg} · "
+                     f"неудачных {sum(1 for a in week if not a['passed'])}")
+    return "\n".join(parts) + "\n\n" + await dashboard(engine, now)
 
 
 async def tick(engine: en.Engine, bot, now: datetime) -> list[str]:
     """Run due jobs. Returns a list of what was done (for logs/tests)."""
     s = engine.s
     done = []
-    u = await s.get_student()
-    if not u:
+    students = await s.get_students()
+    if not students:
         return done
     local = now.astimezone(config.TZ)
+    for u in students:
+        done += await _student_jobs(engine, bot, u, now, local)
+
+    if local.weekday() == config.DIGEST_WEEKDAY and local.hour >= config.DIGEST_HOUR:
+        key = f"digest:{local.isocalendar()[0]}-{local.isocalendar()[1]}"
+        if not await s.kv_get(key):
+            await s.kv_set(key, now.isoformat())
+            await _send(bot, config.ADMIN_ID, await digest(engine, now))
+            done.append("digest")
+    return done
+
+
+async def _student_jobs(engine: en.Engine, bot, u: dict, now: datetime, local: datetime) -> list[str]:
+    s = engine.s
+    done = []
     today = local.date()
     idle = now - u["last_active"]
     prog = await s.get_progress(u["id"])
@@ -87,13 +122,6 @@ async def tick(engine: en.Engine, bot, now: datetime) -> list[str]:
         await s.update_user(u["id"], idle_alert_sent=True)
         await _send(bot, config.ADMIN_ID, t("adm_idle", name=e(u["first_name"]), days=idle.days))
         done.append("idle_alert")
-
-    if local.weekday() == config.DIGEST_WEEKDAY and local.hour >= config.DIGEST_HOUR:
-        key = f"digest:{local.isocalendar()[0]}-{local.isocalendar()[1]}"
-        if not await s.kv_get(key):
-            await s.kv_set(key, now.isoformat())
-            await _send(bot, config.ADMIN_ID, await digest(engine, now))
-            done.append("digest")
     return done
 
 

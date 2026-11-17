@@ -87,8 +87,13 @@ class E2E(unittest.TestCase):
         calls = await send(msg(STUDENT, "kurs-test"))
         self.assertIn("видит твой прогресс", texts(calls, STUDENT)[0])
         self.assertTrue(any("зарегистрировался" in t for t in texts(calls, ADMIN)))
-        # second person refused
-        self.assertIn("место уже занято", texts(await send(msg(STRANGER, "/start KURS-TEST")))[0])
+        # a second person with the same code also gets in (open to everyone)
+        self.assertIn("видит твой прогресс", texts(await send(msg(STRANGER, "/start KURS-TEST")), STRANGER)[0])
+        self.assertEqual(len(await store.get_students()), 2)
+        # admin panel lists both; /unlock without a name asks which student
+        panel = texts(await send(msg(ADMIN, "/admin")), ADMIN)[0]
+        self.assertIn("учеников: 2", panel)
+        self.assertIn("несколько", texts(await send(msg(ADMIN, "/unlock m1w1l2")), ADMIN)[0])
 
         # continue -> lesson card; quiz locked until watched
         card = texts(await send(msg(STUDENT, "▶️ Продолжить")))[0]
@@ -127,14 +132,17 @@ class E2E(unittest.TestCase):
             await send(cb(STUDENT, data))
 
         # admin
-        dash = texts(await send(msg(ADMIN, "/admin")))[0]
+        dash = texts(await send(msg(ADMIN, f"/admin {STUDENT}")))[0]
         self.assertIn("Панель", dash)
         self.assertIn("m1w1l1", dash)
-        await send(msg(ADMIN, "/unlock m1w3l1"))
+        await send(msg(ADMIN, f"/unlock m1w3l1 {STUDENT}"))
         self.assertEqual((await store.get_progress(STUDENT))["m1w3l1"]["manual_unlock"], True)
-        calls = await send(msg(ADMIN, "/note Молодец!"))
+        calls = await send(msg(ADMIN, f"/note {STUDENT}: Молодец!"))
         self.assertTrue(any("Молодец" in t for t in texts(calls, STUDENT)))
-        await send(msg(ADMIN, "/reset_quiz m1w1l1"))
+        self.assertFalse(texts(calls, STRANGER))
+        calls = await send(msg(ADMIN, "/note всем Привет всем"))
+        self.assertTrue(texts(calls, STUDENT) and texts(calls, STRANGER))
+        await send(msg(ADMIN, f"/reset_quiz m1w1l1 {STUDENT}"))
         self.assertNotIn("m1w1l1", await store.get_progress(STUDENT))
         # student cannot use admin commands
         self.assertFalse(any("Панель" in t for t in texts(await send(msg(STUDENT, "/admin")))))

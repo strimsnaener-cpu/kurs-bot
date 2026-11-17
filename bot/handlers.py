@@ -90,9 +90,6 @@ async def start(msg: Message, command: CommandObject):
 
 async def try_code(msg: Message, code: str):
     s = ctx.engine.s
-    if await s.get_student():
-        await msg.answer(t("taken"))
-        return
     if not config.INVITE_CODE or code.upper() != config.INVITE_CODE.upper():
         await msg.answer(t("bad_code"))
         return
@@ -108,8 +105,6 @@ async def guard(msg: Message):
     if not u:
         if is_admin(msg.from_user.id):
             await msg.answer(t("admin_hello", test=""))
-        elif await ctx.engine.s.get_student():
-            await msg.answer(t("taken"))
         else:
             await msg.answer(t("ask_code"))
         return None
@@ -284,42 +279,59 @@ async def on_result(cb: CallbackQuery, u: dict, res: en.QuizResult):
 
 # ---- admin ---------------------------------------------------------------
 @router.message(Command("admin"))
-async def a_dashboard(msg: Message):
+async def a_dashboard(msg: Message, command: CommandObject):
     if not is_admin(msg.from_user.id):
         return
     from .scheduler import dashboard
-    await msg.answer(await dashboard(ctx.engine, now()))
+    await msg.answer(await dashboard(ctx.engine, now(), command.args or ""))
 
 
-async def _student_or_say(msg: Message):
-    st = await ctx.engine.s.get_student()
-    if not st:
-        await msg.answer("Ученик ещё не зарегистрировался.")
-    return st
+async def _student_or_say(msg: Message, who: str = ""):
+    """Pick the target student: by Telegram id or name (who), or the only one if there is just one."""
+    students = await ctx.engine.s.get_students()
+    if not students:
+        await msg.answer("Ещё никто не зарегистрировался.")
+        return None
+    who = who.strip()
+    if who:
+        for st in students:
+            if who == str(st["id"]) or who.lower() == (st["first_name"] or "").lower():
+                return st
+        await msg.answer(f"Ученик «{e(who)}» не найден. Список: /admin")
+        return None
+    if len(students) == 1:
+        return students[0]
+    await msg.answer("Учеников несколько — допиши в конце id или имя ученика (список: /admin).")
+    return None
+
+
+def _split(args: str | None) -> tuple[str, str]:
+    parts = (args or "").strip().split(maxsplit=1)
+    return (parts[0] if parts else ""), (parts[1] if len(parts) > 1 else "")
 
 
 @router.message(Command("unlock"))
 async def a_unlock(msg: Message, command: CommandObject):
     if not is_admin(msg.from_user.id):
         return
-    item = (command.args or "").strip()
+    item, who = _split(command.args)
     if item not in ctx.engine.c.by_id:
-        await msg.answer("Формат: /unlock m1w2l3 (или m1w1t, m1t, final)")
+        await msg.answer("Формат: /unlock m1w2l3 [id или имя] (или m1w1t, m1t, final)")
         return
-    if st := await _student_or_say(msg):
+    if st := await _student_or_say(msg, who):
         await ctx.engine.s.manual_unlock(st["id"], item)
-        await msg.answer(f"🔓 Открыто для ученика: {item}")
+        await msg.answer(f"🔓 Открыто для {e(st['first_name'])}: {item}")
 
 
 @router.message(Command("reset_quiz"))
 async def a_reset(msg: Message, command: CommandObject):
     if not is_admin(msg.from_user.id):
         return
-    item = (command.args or "").strip()
+    item, who = _split(command.args)
     if item not in ctx.engine.c.by_id:
-        await msg.answer("Формат: /reset_quiz m1w2l3")
+        await msg.answer("Формат: /reset_quiz m1w2l3 [id или имя]")
         return
-    if st := await _student_or_say(msg):
+    if st := await _student_or_say(msg, who):
         await ctx.engine.s.reset_item(st["id"], item)
         await msg.answer(f"♻️ Сброшено: {item} (история попыток сохранена)")
 
@@ -330,11 +342,30 @@ async def a_note(msg: Message, command: CommandObject):
         return
     text = (command.args or "").strip()
     if not text:
-        await msg.answer("Формат: /note текст сообщения")
+        await msg.answer("Формат: /note текст (одному ученику)  или  /note всем текст  или  /note id: текст")
         return
-    if st := await _student_or_say(msg):
-        await ctx.bot.send_message(st["id"], t("note_from_admin", text=e(text)))
-        await msg.answer("📨 Отправлено.")
+    students = await ctx.engine.s.get_students()
+    if text.lower().startswith("всем "):
+        body, targets = text[5:].strip(), students
+    elif ":" in text.split(maxsplit=1)[0]:
+        who, body = text.split(":", 1)
+        st = await _student_or_say(msg, who)
+        targets, body = ([st] if st else []), body.strip()
+        if not st:
+            return
+    else:
+        st = await _student_or_say(msg)
+        if not st:
+            return
+        targets, body = [st], text
+    sent = 0
+    for st in targets:
+        try:
+            await ctx.bot.send_message(st["id"], t("note_from_admin", text=e(body)))
+            sent += 1
+        except Exception as ex:
+            log.warning("note failed: %s", type(ex).__name__)
+    await msg.answer(f"📨 Отправлено: {sent}.")
 
 
 @router.message(Command("skip"))

@@ -41,10 +41,11 @@ class MemoryStore:
         self.users[uid].update(fields)
 
     async def get_student(self):
-        for u in self.users.values():
-            if u["role"] == "student":
-                return dict(u)
-        return None
+        st = await self.get_students()
+        return st[0] if st else None
+
+    async def get_students(self):
+        return sorted((dict(u) for u in self.users.values() if u["role"] == "student"), key=lambda u: u["started_at"])
 
     async def get_progress(self, uid):
         return {k[1]: dict(v) for k, v in self.progress.items() if k[0] == uid}
@@ -182,7 +183,12 @@ class PgStore:
         await self.pool.execute(f"UPDATE users SET {sets} WHERE id=$1", uid, *[fields[c] for c in cols])
 
     async def get_student(self):
-        return await self._one("SELECT * FROM users WHERE role='student' LIMIT 1")
+        st = await self.get_students()
+        return st[0] if st else None
+
+    async def get_students(self):
+        rows = await self.pool.fetch("SELECT * FROM users WHERE role='student' ORDER BY started_at")
+        return [dict(r) for r in rows]
 
     async def get_progress(self, uid):
         rows = await self.pool.fetch("SELECT * FROM progress WHERE user_id=$1", uid)
