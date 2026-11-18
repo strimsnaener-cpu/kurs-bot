@@ -1,0 +1,440 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [vector]
+}
+
+// ---------- Identity ----------
+enum Role { USER STUDENT SUPPORT ADMIN }
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String?
+  passwordHash  String?
+  emailVerified DateTime?
+  role          Role     @default(USER)
+  totpSecret    String?  // encrypted
+  locale        String   @default("en")
+  createdAt     DateTime @default(now())
+  accounts      Account[]
+  sessions      Session[]
+  memberships   Membership[]
+  enrollments   Enrollment[]
+  tickets       SupportTicket[]
+  reviews       Review[]
+}
+
+model Account {
+  id                String @id @default(cuid())
+  userId            String
+  provider          String
+  providerAccountId String
+  user              User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Organization {
+  id            String   @id @default(cuid())
+  name          String
+  slug          String   @unique
+  companyInfo   Json?    // description, FAQs summary, tone
+  createdAt     DateTime @default(now())
+  memberships   Membership[]
+  installations Installation[]
+  orders        Order[]
+  subscriptions Subscription[]
+  knowledge     KnowledgeSource[]
+  usage         UsageRecord[]
+}
+
+enum OrgRole { OWNER MEMBER }
+
+model Membership {
+  userId String
+  orgId  String
+  role   OrgRole @default(OWNER)
+  user   User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  org    Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  @@id([userId, orgId])
+}
+
+// ---------- Catalog (admin-editable) ----------
+enum ProductKind { AGENT ACADEMY MENTORSHIP CUSTOM_SERVICE }
+enum ChannelType { TELEGRAM INSTAGRAM WEB EMAIL API }
+
+model Agent {
+  id           String   @id @default(cuid())
+  slug         String   @unique   // matches AgentPlugin.slug
+  name         String
+  logoUrl      String?
+  tagline      String
+  description  String
+  features     Json
+  problems     Json
+  demo         Json?    // scripted demo conversation
+  installGuide String?
+  platforms    ChannelType[]
+  published    Boolean  @default(false)
+  sortOrder    Int      @default(0)
+  configSchema Json     // form definition for settings
+  createdAt    DateTime @default(now())
+  plans        Plan[]
+  reviews      Review[]
+  installations Installation[]
+}
+
+model Plan {
+  id        String      @id @default(cuid())
+  kind      ProductKind
+  agentId   String?
+  courseId  String?
+  name      String
+  features  Json
+  limits    Json?       // messages/month, channels, seats
+  active    Boolean     @default(true)
+  agent     Agent?      @relation(fields: [agentId], references: [id])
+  prices    Price[]
+}
+
+enum BillingInterval { ONE_TIME MONTH YEAR }
+
+model Price {
+  id       String          @id @default(cuid())
+  planId   String
+  interval BillingInterval
+  amount   Int             // minor units
+  currency String          // UAH, USD, EUR
+  active   Boolean         @default(true)
+  plan     Plan            @relation(fields: [planId], references: [id], onDelete: Cascade)
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  agentId   String
+  userId    String
+  rating    Int
+  body      String
+  approved  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  agent     Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([agentId, userId])
+}
+
+// ---------- Commerce ----------
+enum OrderStatus { PENDING PAID FAILED REFUNDED }
+enum SubStatus { TRIALING ACTIVE PAST_DUE CANCELED EXPIRED }
+
+model Order {
+  id          String      @id @default(cuid())
+  orgId       String
+  userId      String
+  priceId     String
+  status      OrderStatus @default(PENDING)
+  amount      Int
+  currency    String
+  provider    String
+  providerRef String?     @unique
+  createdAt   DateTime    @default(now())
+  org         Organization @relation(fields: [orgId], references: [id])
+  payments    Payment[]
+}
+
+model Subscription {
+  id          String    @id @default(cuid())
+  orgId       String
+  priceId     String
+  status      SubStatus @default(ACTIVE)
+  provider    String
+  providerRef String?   @unique
+  currentPeriodEnd DateTime?
+  cancelAtPeriodEnd Boolean @default(false)
+  org         Organization @relation(fields: [orgId], references: [id])
+}
+
+model Payment {
+  id        String   @id @default(cuid())
+  orderId   String
+  amount    Int
+  currency  String
+  status    String
+  raw       Json?
+  createdAt DateTime @default(now())
+  order     Order    @relation(fields: [orderId], references: [id])
+}
+
+// ---------- Agent runtime ----------
+enum InstallStatus { DRAFT ACTIVE PAUSED ERROR }
+
+model Installation {
+  id          String        @id @default(cuid())
+  orgId       String
+  agentId     String
+  entitlementOrderId String?
+  entitlementSubId   String?
+  name        String
+  status      InstallStatus @default(DRAFT)
+  autoReply   Boolean       @default(false)
+  config      Json          // validated by plugin configSchema (persona, language, style)
+  createdAt   DateTime      @default(now())
+  org         Organization  @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  agent       Agent         @relation(fields: [agentId], references: [id])
+  connections ChannelConnection[]
+  conversations Conversation[]
+  @@index([orgId])
+}
+
+model ChannelConnection {
+  id             String      @id @default(cuid())
+  installationId String
+  channel        ChannelType
+  externalId     String      // bot id / IG business account id
+  displayName    String?
+  credentialsEnc String      // AES-256-GCM encrypted tokens
+  webhookSecret  String
+  tokenExpiresAt DateTime?
+  status         String      @default("connected")
+  installation   Installation @relation(fields: [installationId], references: [id], onDelete: Cascade)
+  @@unique([channel, externalId])
+}
+
+model KnowledgeSource {
+  id        String   @id @default(cuid())
+  orgId     String
+  installationId String?
+  type      String   // FAQ | DOCUMENT | URL | TEXT
+  title     String
+  fileKey   String?
+  status    String   @default("pending")
+  createdAt DateTime @default(now())
+  org       Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  chunks    KnowledgeChunk[]
+}
+
+model KnowledgeChunk {
+  id        String @id @default(cuid())
+  sourceId  String
+  orgId     String
+  content   String
+  embedding Unsupported("vector(1536)")?
+  source    KnowledgeSource @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  @@index([orgId])
+}
+
+model Conversation {
+  id             String   @id @default(cuid())
+  installationId String
+  orgId          String
+  channel        ChannelType
+  externalChatId String
+  contactName    String?
+  status         String   @default("open") // open | handoff | closed
+  lastMessageAt  DateTime @default(now())
+  installation   Installation @relation(fields: [installationId], references: [id], onDelete: Cascade)
+  messages       Message[]
+  leads          Lead[]
+  handoffs       HandoffRequest[]
+  @@unique([installationId, externalChatId])
+  @@index([orgId, lastMessageAt])
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  conversationId String
+  direction      String   // IN | OUT
+  author         String   // customer | agent | human
+  text           String
+  externalId     String?
+  createdAt      DateTime @default(now())
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  @@unique([conversationId, externalId])
+}
+
+model Lead {
+  id             String   @id @default(cuid())
+  conversationId String
+  orgId          String
+  data           Json
+  createdAt      DateTime @default(now())
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+}
+
+model HandoffRequest {
+  id             String   @id @default(cuid())
+  conversationId String
+  reason         String?
+  resolved       Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+}
+
+model UsageRecord {
+  id        String   @id @default(cuid())
+  orgId     String
+  installationId String?
+  kind      String   // llm_tokens_in | llm_tokens_out | message
+  quantity  Int
+  createdAt DateTime @default(now())
+  org       Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  @@index([orgId, createdAt])
+}
+
+// ---------- Academy ----------
+model Course {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  description String
+  level       String
+  monthIndex  Int?     // 1..6 in the roadmap
+  published   Boolean  @default(false)
+  vipOnly     Boolean  @default(true)
+  modules     Module[]
+  enrollments Enrollment[]
+  certificates Certificate[]
+}
+
+model Module {
+  id       String @id @default(cuid())
+  courseId String
+  title    String
+  position Int
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons  Lesson[]
+}
+
+model Lesson {
+  id         String @id @default(cuid())
+  moduleId   String
+  title      String
+  position   Int
+  videoId    String?  // Mux/Bunny asset
+  content    String?
+  materials  Json?
+  module     Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  assignments Assignment[]
+  progress   LessonProgress[]
+}
+
+model Enrollment {
+  id        String   @id @default(cuid())
+  userId    String
+  courseId  String
+  createdAt DateTime @default(now())
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course    Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  @@unique([userId, courseId])
+}
+
+model LessonProgress {
+  userId      String
+  lessonId    String
+  completedAt DateTime?
+  lesson      Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  @@id([userId, lessonId])
+}
+
+model Assignment {
+  id          String @id @default(cuid())
+  lessonId    String
+  prompt      String
+  lesson      Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  submissions Submission[]
+}
+
+model Submission {
+  id           String @id @default(cuid())
+  assignmentId String
+  userId       String
+  body         String
+  feedback     String?
+  grade        String?
+  createdAt    DateTime @default(now())
+  assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+}
+
+model Certificate {
+  id        String   @id @default(cuid())
+  userId    String
+  courseId  String
+  code      String   @unique  // public verification code
+  issuedAt  DateTime @default(now())
+  course    Course   @relation(fields: [courseId], references: [id])
+  @@unique([userId, courseId])
+}
+
+model LiveSession {
+  id        String   @id @default(cuid())
+  title     String
+  startsAt  DateTime
+  joinUrl   String
+  recordingUrl String?
+}
+
+model Announcement {
+  id        String   @id @default(cuid())
+  title     String
+  body      String
+  audience  String   @default("all") // all | students | customers
+  createdAt DateTime @default(now())
+}
+
+// ---------- Support & ops ----------
+model SupportTicket {
+  id        String   @id @default(cuid())
+  userId    String?
+  email     String
+  subject   String
+  status    String   @default("open")
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id])
+  messages  TicketMessage[]
+}
+
+model TicketMessage {
+  id        String   @id @default(cuid())
+  ticketId  String
+  fromStaff Boolean  @default(false)
+  body      String
+  createdAt DateTime @default(now())
+  ticket    SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String?
+  action    String
+  target    String?
+  meta      Json?
+  createdAt DateTime @default(now())
+  @@index([createdAt])
+}
+
+model SystemLog {
+  id        String   @id @default(cuid())
+  level     String
+  source    String
+  message   String
+  meta      Json?
+  createdAt DateTime @default(now())
+  @@index([createdAt])
+}
+
+model Setting {
+  key   String @id
+  value Json
+}

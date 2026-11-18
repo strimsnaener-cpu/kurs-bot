@@ -1,0 +1,14 @@
+{
+  "name": "neuraldesk-platform",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "start": "node --env-file=.env server/index.js",
+    "make-admin": "node --env-file=.env server/cli.js make-admin",
+    "test": "node --test tests/*.test.js",
+    "test:browser": "node tests/browser/run-all.mjs"
+  }
+}

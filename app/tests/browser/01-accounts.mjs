@@ -1,0 +1,60 @@
+// Browser test. Run from the app folder:  node tests/browser/01-accounts.mjs   (needs: npm i -D playwright && npx playwright install chromium)
+import os from 'node:os';
+import path from 'node:path';
+import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
+const SHOTS = path.join(os.tmpdir(), 'neuraldesk-shots'); fs.mkdirSync(SHOTS, { recursive: true });
+import { totp } from '../../server/auth.js';
+import { execFileSync, spawn } from 'node:child_process';
+const { chromium } = await import('playwright');
+const env = { ...process.env, PORT: '3917', DATABASE_FILE: path.join(os.tmpdir(), 'e2e-01-accounts.db'), ENCRYPTION_KEY: Buffer.alloc(32, 7).toString('base64') };
+for (const f of [env.DATABASE_FILE, env.DATABASE_FILE + '-wal', env.DATABASE_FILE + '-shm']) fs.rmSync(f, { force: true });
+const srv = spawn('node', ['server/index.js'], { env, cwd: fileURLToPath(new URL('../..', import.meta.url)) });
+let log=''; srv.stdout.on('data', d => log += d); srv.stderr.on('data', d => log += d);
+await new Promise(r => setTimeout(r, 900));
+const B = 'http://localhost:3917', errs = [], step = m => console.log('✓', m);
+const b = await chromium.launch();
+try {
+  const ctx = await b.newContext({ viewport: { width: 1280, height: 860 } }); const p = await ctx.newPage();
+  p.on('console', m => { if (m.type() === 'error' && !/status of 40[01]/.test(m.text())) errs.push(m.text()); }); p.on('pageerror', e => errs.push(e.message)); p.on('response', r => { if (r.status() === 400) console.log('  (400 from', r.url(), ')'); });
+  await p.goto(B + '/index.html'); await p.click('text=Начать');
+  await p.fill('#name', 'Danya Test'); await p.fill('#email', 'danya@example.com'); await p.fill('#password', 'short');
+  await p.click('button[type=submit]'); await p.waitForSelector('.alert.err:not([hidden])');
+  if (!/10 символов/.test(await p.textContent('.alert.err'))) throw new Error('weak pw message missing'); step('weak password rejected with message');
+  await p.fill('#password', 'super-secret-pass-1'); await p.click('button[type=submit]');
+  await p.waitForURL('**/dashboard.html'); await p.waitForSelector('[data-name]:text("Danya")');
+  if (await p.isHidden('[data-verify]')) throw new Error('verify banner missing'); step('registered → dashboard, "confirm email" banner shown');
+  await p.screenshot({ path: SHOTS + '/s3-dashboard.png', fullPage: true });
+  const out = await (await fetch(B + '/api/dev/outbox')).json();
+  const link = out.emails[0].body.match(/http\S+/)[0];
+  await p.goto(link); await p.waitForSelector('h1:text("Email подтверждён")');
+  if (p.url().includes('token')) throw new Error('token left in URL'); step('email confirmed via link; token removed from address bar');
+  await p.goto(B + '/dashboard.html'); await p.waitForSelector('[data-verified-badge]:text("Подтверждён")'); step('dashboard shows email confirmed');
+  await p.click('[data-action=logout]'); await p.waitForURL('**/index.html');
+  await p.goto(B + '/dashboard.html'); await p.waitForURL('**/login.html'); step('logged out; dashboard redirects to login');
+  await p.fill('#email', 'danya@example.com'); await p.fill('#password', 'wrong-password-x'); await p.click('button[type=submit]');
+  await p.waitForSelector('.alert.err:not([hidden])'); step('wrong password shows error');
+  await p.fill('#password', 'super-secret-pass-1'); await p.click('button[type=submit]'); await p.waitForURL('**/dashboard.html'); step('logged in');
+  await p.click('[data-action="2fa-setup"]'); await p.waitForSelector('[data-secret]:not(:empty)');
+  const secret = (await p.textContent('[data-secret]')).replace(/\s/g, '');
+  await p.fill('#code', totp(secret)); await p.click('[data-form="2fa-enable"] button');
+  await p.waitForSelector('[data-2fa-on]:not([hidden])'); step('2FA turned on with authenticator code');
+  execFileSync('node', ['server/cli.js', 'make-admin', 'danya@example.com'], { env, cwd: fileURLToPath(new URL('../..', import.meta.url)) }); step('make-admin CLI');
+  // second user to manage
+  await fetch(B + '/api/auth/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: '<img src=x onerror=alert(1)>', email: 'student@example.com', password: 'student-pass-123' }) });
+  await p.click('[data-action=logout]'); await p.waitForURL('**/index.html'); await p.goto(B + '/login.html');
+  await p.fill('#email', 'danya@example.com'); await p.fill('#password', 'super-secret-pass-1'); await p.click('button[type=submit]');
+  await p.waitForSelector('[data-2fa]:not([hidden])'); step('login asks for 2FA code');
+  await p.fill('#code', totp(secret, Date.now() + 30000)); await p.click('button[type=submit]'); await p.waitForURL('**/dashboard.html');
+  await p.waitForSelector('[data-admin]:not([hidden]) tbody tr'); 
+  if (await p.$('tbody img')) throw new Error('XSS: name rendered as HTML'); step('admin panel visible; hostile user name shown as plain text');
+  await p.selectOption('select[aria-label="Роль для student@example.com"]', 'STUDENT'); await p.waitForSelector('[data-flash]:text("роль «Студент»")'); step('role changed from admin table');
+  await p.screenshot({ path: SHOTS + '/s3-admin.png', fullPage: true });
+  const m = await b.newPage({ viewport: { width: 390, height: 844 } });
+  for (const f of ['login', 'register', 'reset']) { await m.goto(`${B}/${f}.html`); if (await m.evaluate(() => document.documentElement.scrollWidth > innerWidth)) errs.push(f + ' mobile overflow'); }
+  await m.screenshot({ path: SHOTS + '/s3-reset-mobile.png' }); step('auth pages fit on a phone');
+  await m.goto(`${B}/login.html`); await m.screenshot({ path: SHOTS + '/s3-login-mobile.png' });
+} catch (e) { errs.push('FAIL: ' + e.message); }
+await b.close(); srv.kill();
+console.log(errs.length ? 'ERRORS:\n' + errs.join('\n') + '\n' + log : 'E2E PASSED');
+if (errs.length) process.exitCode = 1;
