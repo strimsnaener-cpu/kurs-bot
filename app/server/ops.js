@@ -2,7 +2,7 @@
 import crypto from 'node:crypto';
 
 const DAY = 24 * 3600e3;
-const CATEGORIES = ['GENERAL', 'BILLING', 'TECHNICAL', 'ACADEMY', 'CUSTOM'];
+const CATEGORIES = ['GENERAL', 'BILLING', 'TECHNICAL', 'CUSTOM'];   // ACADEMY is legacy: old tickets keep it, new ones can't pick it
 const EMAIL_RE = /^[^\s@]{1,64}@[^\s@]{1,255}\.[^\s@]{2,}$/;
 const iso = (ms = 0) => new Date(Date.now() + ms).toISOString();
 const sha = s => crypto.createHash('sha256').update(s).digest('hex');
@@ -19,8 +19,7 @@ export function ops({ db, HttpError, requireUser, requireAdmin, audit, throttle,
 
   // ---------- audiences ----------
   const isCustomer = id => !!q("SELECT 1 FROM orders WHERE user_id = ? AND product_type = 'AGENT' AND status = 'PAID'").get(id);
-  const isStudent = id => !!q('SELECT 1 FROM academy_memberships WHERE user_id = ? AND starts_at <= ? AND ends_at > ?').get(id, iso(), iso());
-  const inAudience = (u, aud) => aud === 'ALL' || u.role === 'ADMIN' || (aud === 'CUSTOMERS' ? isCustomer(u.id) : isStudent(u.id));
+  const inAudience = (u, aud) => aud === 'ALL' || u.role === 'ADMIN' || (aud === 'CUSTOMERS' && isCustomer(u.id));
   const audienceUsers = aud => q('SELECT id, email, name, role FROM users WHERE suspended_at IS NULL').all().filter(u => inAudience(u, aud));
 
   // ---------- tickets ----------
@@ -114,12 +113,10 @@ export function ops({ db, HttpError, requireUser, requireAdmin, audit, throttle,
       return {
         currency: main, months,
         agents: months.map(m => paid.filter(r => r.m === m && r.type === 'AGENT' && r.currency === main).reduce((s, r) => s + r.total, 0)),
-        academy: months.map(m => paid.filter(r => r.m === m && r.type === 'ACADEMY' && r.currency === main).reduce((s, r) => s + r.total, 0)),
         otherCurrencies: currencies.filter(x => x !== main),
         newUsers: months.map(m => users.find(r => r.m === m)?.n || 0),
         topAgents: q(`SELECT a.name, COUNT(*) AS orders, SUM(o.amount) AS total, o.currency FROM orders o JOIN agents a ON a.id = o.agent_id WHERE o.status = 'PAID' GROUP BY a.id, o.currency ORDER BY total DESC LIMIT 5`).all(),
         refunds: q("SELECT COUNT(*) AS n, COALESCE(SUM(amount), 0) AS total FROM orders WHERE status = 'REFUNDED'").get(),
-        students: q('SELECT COUNT(DISTINCT user_id) AS n FROM academy_memberships WHERE starts_at <= ? AND ends_at > ?').get(iso(), iso()).n,
         openTickets: q("SELECT COUNT(*) AS n FROM tickets WHERE status = 'OPEN'").get().n,
       };
     },
@@ -166,7 +163,7 @@ export function ops({ db, HttpError, requireUser, requireAdmin, audit, throttle,
     if (!Number.isFinite(starts) || (b.endsAt && !Number.isFinite(ends))) throw new HttpError(400, 'Проверьте даты');
     if (ends && ends <= starts) throw new HttpError(400, 'Дата окончания должна быть позже начала');
     return { title: str(b.title, 'Название', 3, 120), body: str(b.body, 'Сообщение', 3, 2000),
-      audience: ['ALL', 'CUSTOMERS', 'STUDENTS'].includes(b.audience) ? b.audience : 'ALL', level: b.level === 'IMPORTANT' ? 'IMPORTANT' : 'INFO',
+      audience: ['ALL', 'CUSTOMERS'].includes(b.audience) ? b.audience : 'ALL', level: b.level === 'IMPORTANT' ? 'IMPORTANT' : 'INFO',
       starts_at: new Date(starts).toISOString(), ends_at: ends ? new Date(ends).toISOString() : null };
   }
 
@@ -182,11 +179,9 @@ export function ops({ db, HttpError, requireUser, requireAdmin, audit, throttle,
       return {
         user: { ...publicUser(u), suspended: !!u.suspended_at, suspendedAt: u.suspended_at, suspendReason: u.suspend_reason },
         workspaces: orgs,
-        orders: q('SELECT o.id, o.status, o.product_type AS type, o.plan_name AS plan, o.interval, o.amount, o.currency, o.created_at AS createdAt, COALESCE(a.name, ap.name) AS product FROM orders o LEFT JOIN agents a ON a.id = o.agent_id LEFT JOIN academy_plans ap ON ap.id = o.academy_plan_id WHERE o.user_id = ? ORDER BY o.created_at DESC').all(id),
+        orders: q('SELECT o.id, o.status, o.product_type AS type, o.plan_name AS plan, o.interval, o.amount, o.currency, o.created_at AS createdAt, COALESCE(a.name, o.plan_name) AS product FROM orders o LEFT JOIN agents a ON a.id = o.agent_id WHERE o.user_id = ? ORDER BY o.created_at DESC').all(id),
         agents: q(`SELECT i.id, i.name, i.auto_reply AS live, (SELECT GROUP_CONCAT(display_name, ', ') FROM channel_connections WHERE installation_id = i.id) AS channels
                    FROM installations i JOIN memberships m ON m.org_id = i.org_id WHERE m.user_id = ?`).all(id).map(x => ({ ...x, live: !!x.live })),
-        academy: q('SELECT m.starts_at AS startsAt, m.ends_at AS endsAt, m.mentorship, p.name AS plan FROM academy_memberships m JOIN academy_plans p ON p.id = m.plan_id WHERE m.user_id = ? ORDER BY m.ends_at DESC').all(id)
-          .map(x => ({ ...x, mentorship: !!x.mentorship, active: x.startsAt <= iso() && x.endsAt > iso() })),
         tickets: q('SELECT * FROM tickets WHERE user_id = ? OR email = ? ORDER BY updated_at DESC').all(id, u.email).map(t => ticketOut(t)),
         sessions: q('SELECT COUNT(*) AS n FROM sessions WHERE user_id = ? AND expires_at > ?').get(id, iso()).n,
         activity: q('SELECT action, target, created_at AS at FROM audit_log WHERE actor_id = ? ORDER BY created_at DESC LIMIT 15').all(id),

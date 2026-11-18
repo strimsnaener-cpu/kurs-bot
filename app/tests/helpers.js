@@ -5,14 +5,13 @@ import { fileURLToPath } from 'node:url';
 import { openDb } from '../server/db.js';
 import { createApp } from '../server/app.js';
 import { seedCatalog } from '../server/seed.js';
-import { seedAcademy } from '../server/academy-seed.js';
 import { totp } from '../server/auth.js';
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 
 export async function startServer({ seed = true, env = {} } = {}) {
   const db = openDb(':memory:');
-  if (seed) { seedCatalog(db); seedAcademy(db); }
+  if (seed) seedCatalog(db);
   const quiet = { error() {} };
   const app = createApp({ db, encryptionKey: crypto.randomBytes(32).toString('base64'), publicDir: path.join(root, 'public'), env, log: quiet });
   const server = http.createServer(app);

@@ -9,7 +9,7 @@ after(() => S.close());
 const mail = (to, like) => S.db.prepare('SELECT * FROM outbox WHERE to_email = ? AND subject LIKE ? ORDER BY created_at DESC, rowid DESC').get(to, like);
 const tokenIn = body => body.match(/[?&]t=([\w-]+)/)?.[1];
 
-test('users: search, profile with orders/agents/academy, suspend logs out and blocks login', async () => {
+test('users: search, profile with orders/agents, suspend logs out and blocks login', async () => {
   const u = await S.customerWithAgent('telegram-assistant', 'Bohdan Hnatiuk');
   await u.c('POST', `/api/installations/${u.inst}/telegram`, {}).catch(() => {});
   S.db.prepare('UPDATE installations SET auto_reply = 1 WHERE id = ?').run(u.inst);
@@ -121,16 +121,15 @@ test('support: guest ticket with private link, staff reply by email, customer re
   assert.equal(S.db.prepare('SELECT COUNT(*) AS n FROM tickets').get().n, before);
 });
 
-test('insights: monthly revenue by product, top agents, students, open tickets', async () => {
+test('insights: monthly agent revenue, top agents, open tickets; no Academy data', async () => {
   await S.customerWithAgent('support-agent');
-  const stu = await S.user('Insight Student');
-  const plan = (await stu.c('GET', '/api/academy')).body.plans[0];
-  const { order } = (await stu.c('POST', '/api/academy/orders', { priceId: plan.prices[0].id })).body;
-  await admin.c('POST', `/api/admin/orders/${order.id}/status`, { status: 'PAID' });
   const d = (await admin.c('GET', '/api/admin/insights')).body;
   assert.equal(d.months.length, 12); assert.equal(d.months[11], new Date().toISOString().slice(0, 7));
-  assert.ok(d.agents[11] > 0); assert.ok(d.academy[11] >= 9900);
-  assert.ok(d.topAgents.length >= 1); assert.ok(d.students >= 1); assert.ok(d.newUsers[11] >= 1);
+  assert.ok(d.agents[11] > 0); assert.equal(d.academy, undefined); assert.equal(d.students, undefined);
+  assert.ok(d.topAgents.length >= 1); assert.ok(d.newUsers[11] >= 1);
+  assert.equal((await admin.c('GET', '/api/academy')).status, 404);                                  // the Academy API is gone
+  const t = (await S.client()('POST', '/api/support/tickets', { name: 'Old', email: 'old@x.example', subject: 'Course', message: 'About the course please', category: 'ACADEMY' })).body;
+  assert.equal(S.db.prepare('SELECT category FROM tickets WHERE id = ?').get(t.id).category, 'GENERAL');  // retired category falls back
 });
 
 test('agent performance and system logs', async () => {

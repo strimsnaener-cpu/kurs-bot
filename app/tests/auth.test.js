@@ -147,8 +147,8 @@ test('RBAC: admin panel needs ADMIN role and 2FA; TOTP blocks replays', async ()
   assert.equal(list.status, 200);
   assert.ok(list.body.users.some(x => x.email === o.email));
   assert.equal((await fresh2('POST', `/api/admin/users/${oid}/role`, { role: 'GOD' })).status, 400);
-  assert.equal((await fresh2('POST', `/api/admin/users/${oid}/role`, { role: 'STUDENT' })).status, 200);
-  assert.equal((await other('GET', '/api/me')).body.user.role, 'STUDENT');
+  assert.equal((await fresh2('POST', `/api/admin/users/${oid}/role`, { role: 'SUPPORT' })).status, 200);
+  assert.equal((await other('GET', '/api/me')).body.user.role, 'SUPPORT');
   const log = await fresh2('GET', '/api/admin/audit');
   assert.ok(log.body.entries.some(e => e.action === 'admin.role_changed' && e.target === oid));
 });

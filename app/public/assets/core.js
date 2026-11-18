@@ -68,8 +68,7 @@ function el(tag, props = {}, ...kids) {
 function money(amount, currency) {
   return new Intl.NumberFormat('ru-RU', { style: 'currency', currency, minimumFractionDigits: amount % 100 ? 2 : 0 }).format(amount / 100);
 }
-const ROLE_RU = { USER: 'Клиент', STUDENT: 'Студент', SUPPORT: 'Поддержка', ADMIN: 'Администратор' };
-const LEVEL_RU = { Beginner: 'Начальный', Intermediate: 'Средний', Advanced: 'Продвинутый' };
+const ROLE_RU = { USER: 'Клиент', SUPPORT: 'Поддержка', ADMIN: 'Администратор' };
 const PER = { MONTH: ' / мес', YEAR: ' / год', ONE_TIME: ' разово' };
 const PLATFORM_LABEL = { TELEGRAM: 'Telegram', INSTAGRAM: 'Instagram', WEB: 'Сайт', API: 'API', EMAIL: 'Email' };
 const fmtDate = d => new Date(d).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -96,11 +95,3 @@ function safeNext(v) { return v && /^[a-z0-9-]+\.html(\?[\w=&%.-]*)?(#[\w-]+)?$/
     el('button', { class: 'btn sm', 'aria-label': `Скрыть: ${a.title}`, text: 'Скрыть', onclick: async e => { e.target.closest('.announce').remove(); await api(`/api/announcements/${a.id}/dismiss`, {}).catch(() => {}); } })));
 })();
 
-// Russian plural forms: plural(5, 'урок', 'урока', 'уроков') → 'уроков'.
-function plural(n, one, few, many) {
-  const a = Math.abs(n) % 100, b = a % 10;
-  if (a > 10 && a < 20) return many;
-  if (b === 1) return one;
-  if (b >= 2 && b <= 4) return few;
-  return many;
-}

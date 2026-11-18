@@ -105,7 +105,7 @@ const pages = {
       else {
         const sel = document.createElement('select');
         sel.setAttribute('aria-label', `Роль для ${x.email}`);
-        for (const r of ['USER', 'STUDENT', 'SUPPORT', 'ADMIN']) sel.add(new Option(ROLE_RU[r], r, false, r === x.role));
+        for (const r of ['USER', 'SUPPORT', 'ADMIN']) sel.add(new Option(ROLE_RU[r], r, false, r === x.role));
         sel.addEventListener('change', async () => {
           const prev = x.role;
           try { await api(`/api/admin/users/${encodeURIComponent(x.id)}/role`, { role: sel.value }); x.role = sel.value; say(`${x.email}: роль «${ROLE_RU[sel.value]}».`); }

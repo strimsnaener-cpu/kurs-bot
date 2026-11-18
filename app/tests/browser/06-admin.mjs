@@ -24,9 +24,11 @@ try {
 
   const g = await (await b.newContext({ viewport: { width: 1280, height: 900 } })).newPage(); watch(g);
   await g.goto(B + '/index.html'); await g.click('.foot-links a:text("Справка")'); await g.waitForSelector('#telegram h2'); ok('footer links work (Docs)');
+  await g.click('.foot-links a:text("Внедрение")'); await g.waitForSelector('h1:has-text("научим команду")');
+  if (await g.$('a[href*="academy"]')) throw new Error('Academy link left on the site'); ok('implementation & training page; no Academy links');
   await g.click('.foot-links a:text("Цены")'); await g.waitForSelector('[data-agent-prices] .price-card');
-  if ((await g.$$('[data-agent-prices] .price-card')).length !== 5) throw new Error('5 agents expected'); await g.waitForSelector('[data-academy-prices] .plan:has-text("VIP + Менторство")');
-  ok('Pricing shows live agent and Academy prices'); await g.screenshot({ path: SHOTS + '/s7-pricing.png', fullPage: true });
+  if ((await g.$$('[data-agent-prices] .price-card')).length !== 5) throw new Error('5 agents expected'); await g.waitForSelector('.card h3:text("Обучение команды")');
+  ok('Pricing shows live agent prices and the implementation offer'); await g.screenshot({ path: SHOTS + '/s7-pricing.png', fullPage: true });
   await g.click('a:text("Расскажите, что нужно")'); await g.waitForURL('**/contact.html?topic=custom');
   if (await g.inputValue('#category') !== 'CUSTOM') throw new Error('topic not preselected');
   await g.fill('#name', 'Olha Moroz'); await g.fill('#email', 'olha@clinic.example'); await g.fill('#subject', 'Booking bot for our clinic');
@@ -90,7 +92,7 @@ try {
   if ((await ap.$$('.tabs a')).length !== 1) throw new Error('support staff sees more than Support'); ok('support staff see only the Support tab');
 
   const m = await (await b.newContext({ viewport: { width: 390, height: 844 } })).newPage();
-  for (const f of ['pricing.html', 'docs.html', 'contact.html', 'about.html']) { await m.goto(`${B}/${f}`); await m.waitForTimeout(400); if (await m.evaluate(() => document.documentElement.scrollWidth > innerWidth)) errs.push(`${f} overflows on mobile`); }
+  for (const f of ['pricing.html', 'docs.html', 'contact.html', 'about.html', 'services.html', 'index.html']) { await m.goto(`${B}/${f}`); await m.waitForTimeout(400); if (await m.evaluate(() => document.documentElement.scrollWidth > innerWidth)) errs.push(`${f} overflows on mobile`); }
   await m.context().addCookies(await a.context().cookies()); await m.goto(B + '/admin.html'); await m.waitForSelector('.bars.twelve'); await m.waitForTimeout(300);
   if (await m.evaluate(() => document.documentElement.scrollWidth > innerWidth)) errs.push('admin overview overflows on mobile: ' + await m.evaluate(() => [...document.querySelectorAll('body *')].filter(e => e.getBoundingClientRect().right > innerWidth + 1 && !e.closest('.tabs') && ![...e.children].some(c => c.getBoundingClientRect().right > innerWidth + 1)).slice(0, 8).map(e => e.tagName + '.' + e.className + ' ' + Math.round(e.getBoundingClientRect().right) + ' ' + (e.textContent || '').slice(0, 40)).join(' | ')));
   ok('new pages and admin overview fit on a phone');

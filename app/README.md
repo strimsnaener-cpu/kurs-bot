@@ -1,4 +1,4 @@
-# NeuralDesk platform: Stages 3–7 (accounts, marketplace, AI agents on Telegram + Instagram, VIP Academy, admin)
+# NeuralDesk platform: Stages 3–7 (accounts, marketplace, AI agents on Telegram + Instagram, implementation & training, admin)
 
 Zero dependencies. Needs **Node.js 22.13+** only.
 
@@ -73,35 +73,19 @@ Customers click **Connect Instagram**, log in on Instagram's own page, and allow
 8. To open it to customers: Business verification + App Review for `instagram_business_basic` and `instagram_business_manage_messages` (Advanced Access). Meta also requires a **privacy policy URL**: not built yet.
 
 
-## VIP Academy (Stage 6)
-First start seeds the six-month program (6 courses, 16 lessons with outlines and goals, 6 assignments) and two plans: **VIP Academy** and **VIP + Mentorship** (placeholder prices). Videos and full lesson content are yours to add.
+## Implementation & team training (replaces the removed Academy)
+The VIP Academy (courses, certificates, community, mentorship) was removed: the business is a B2B service, not a school. `/services.html` describes the offer (connecting agents to the customer's projects and training their staff); requests go through the contact form with the "Внедрение агентов и обучение команды" topic and land in **Admin → Support**. Pricing lists it as a per-project offer.
 
-For students:
-- `/academy.html`: roadmap and plans. Joining creates an order; **Admin → Orders → Mark paid** starts access (monthly 31 days, yearly 366, one payment 365; renewals add on top; a refund removes the access).
-- `/learn.html`: program progress, "Continue" to the next lesson, live sessions, certificates, feedback waiting.
-- Course and lesson pages: video, text, materials, "Mark as complete", assignments with your feedback. Free-preview lessons are open to everyone.
-- A **certificate** is issued automatically when every lesson in a course is complete and every assignment is approved. Public verification page, printable / save as PDF.
-- `/community.html`: private posts and replies for members (surnames shortened). You can pin and remove posts.
-- `/live.html`: workshops and Q&A; join links and recordings only for members.
-- `/mentorship.html`: on VIP + Mentorship, students request sessions; you schedule them with a date and link (they get an email).
-
-For you, in the admin panel:
-- **Academy**: course builder (courses, modules, lessons, ordering, preview/visible switches), video links, materials, assignments, plans and prices.
-- **Students**: everyone with access and their progress; assignments to review (Approve / Needs work with feedback); **Give free access** by email for scholarships or partners.
-- **Live** and **Mentorship** tabs.
-
-Video: paste a YouTube, Vimeo or Bunny Stream link per lesson. YouTube links play through youtube-nocookie.com. Unlisted YouTube videos can still be shared by anyone who has the link; for paid content, Bunny Stream or Vimeo with domain restrictions is the safer choice (token-protected playback can be added with a Bunny key).
-
-The Academy copy says plainly that results depend on effort and nothing guarantees income or employment.
+Old databases keep the Academy tables and any ACADEMY orders for history; nothing reads them. Users with the old STUDENT role become USER on start.
 
 ## Admin panel (Stage 7)
 `/admin.html` (Admin role + 2FA):
-- **Overview**: revenue this month, 12-month revenue chart (agents vs Academy), orders awaiting payment, support requests waiting, top agents, platform numbers, agent problems.
-- **Orders**, **Agents & prices**, **Reviews**, **Academy**, **Students**, **Live**, **Mentorship** (earlier stages).
-- **Users**: search and filter; profile with orders, agents, Academy access, support requests and recent activity; change role; log out everywhere; **suspend** (with a reason, logs them out, optionally pauses their bots) and restore.
+- **Overview**: revenue this month, 12-month revenue chart, orders awaiting payment, support requests waiting, top agents, platform numbers, agent problems.
+- **Orders**, **Agents & prices**, **Reviews** (earlier stages).
+- **Users**: search and filter; profile with orders, agents, support requests and recent activity; change role; log out everywhere; **suspend** (with a reason, logs them out, optionally pauses their bots) and restore.
 - **Support**: all requests from the Contact form; reply (sent by email), close, reopen. Customers see the thread at `/support.html`. Guests use a private link from their email.
 - **Agents live**: every installed agent for the last 7 days: incoming, replies, handoffs (and handoff rate), leads, AI tokens, channel errors.
-- **Announcements**: banners for everyone, agent customers or Academy students, with start/end dates; optionally emailed. People can dismiss them.
+- **Announcements**: banners for everyone or agent customers, with start/end dates; optionally emailed. People can dismiss them.
 - **Logs**: system errors (server and background jobs) and the full activity log with filters.
 
 The **Support** role can only answer support requests (and also needs 2FA).

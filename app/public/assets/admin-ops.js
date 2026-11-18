@@ -1,17 +1,18 @@
 // Admin tabs: Overview (with charts), Users, Support, Agents live, Announcements, Logs.
-const CAT = { GENERAL: 'Общий вопрос', BILLING: 'Оплата', TECHNICAL: 'Техническая проблема', ACADEMY: 'Академия', CUSTOM: 'Индивидуальное решение' };
+const CAT = { GENERAL: 'Общий вопрос', BILLING: 'Оплата', TECHNICAL: 'Техническая проблема', ACADEMY: 'Обучение (старое)', CUSTOM: 'Внедрение и обучение' };
 const TST = { OPEN: ['Ждёт нашего ответа', 'st-pending'], PENDING: ['Ждёт клиента', 'off'], CLOSED: ['Закрыт', 'off'] };
 const ago = d => { if (!d) return '—'; const s = (Date.now() - Date.parse(d)) / 1000; return s < 60 ? 'только что' : s < 3600 ? `${Math.floor(s / 60)} мин назад` : s < 86400 ? `${Math.floor(s / 3600)} ч назад` : fmtDate(d); };
+const field = (label, input, hint) => el('div', { class: 'field' }, el('label', { text: label }), input, hint ? el('span', { class: 'hint', text: hint }) : null);
+const localInput = iso => { if (!iso) return ''; const d = new Date(iso); return new Date(d.getTime() - d.getTimezoneOffset() * 60e3).toISOString().slice(0, 16); };
 const monthLabel = m => new Date(`${m}-01T00:00:00Z`).toLocaleDateString('ru-RU', { month: 'short' });
 
-// Stacked monthly bars (agents + academy), labelled for screen readers.
+// Monthly revenue bars, labelled for screen readers.
 function revenueChart(d) {
-  const max = Math.max(1, ...d.months.map((_, i) => d.agents[i] + d.academy[i]));
+  const max = Math.max(1, ...d.agents);
   return el('div', {},
-    el('div', { class: 'legend' }, el('span', { class: 'k in', text: 'AI-агенты' }), el('span', { class: 'k out', text: 'Академия' })),
-    el('div', { class: 'bars twelve', role: 'img', 'aria-label': `Выручка по месяцам, ${d.currency}: ${d.months.map((m, i) => `${monthLabel(m)} ${money(d.agents[i] + d.academy[i], d.currency)}`).join('; ')}` },
-      d.months.map((m, i) => el('div', { class: 'bar-col', title: `${monthLabel(m)}: агенты ${money(d.agents[i], d.currency)} + академия ${money(d.academy[i], d.currency)}` },
-        el('div', { class: 'bar-stack' }, el('i', { class: 'out', style: `height:${d.academy[i] / max * 100}%` }), el('i', { class: 'in', style: `height:${d.agents[i] / max * 100}%` })),
+    el('div', { class: 'bars twelve', role: 'img', 'aria-label': `Выручка по месяцам, ${d.currency}: ${d.months.map((m, i) => `${monthLabel(m)} ${money(d.agents[i], d.currency)}`).join('; ')}` },
+      d.months.map((m, i) => el('div', { class: 'bar-col', title: `${monthLabel(m)}: ${money(d.agents[i], d.currency)}` },
+        el('div', { class: 'bar-stack' }, el('i', { class: 'in', style: `height:${d.agents[i] / max * 100}%` })),
         el('small', { text: monthLabel(m) })))));
 }
 
@@ -21,7 +22,7 @@ window.ADMIN_EXTRA = {
   async overview() {
     const [s, rt, ins] = await Promise.all([api('/api/admin/stats'), api('/api/admin/runtime'), api('/api/admin/insights')]);
     const tile = (v, l, href) => el(href ? 'a' : 'div', href ? { href } : {}, el('b', { text: v }), el('span', { text: l }));
-    const thisMonth = ins.agents[11] + ins.academy[11];
+    const thisMonth = ins.agents[11];
     const problems = [...rt.failedJobs.map(j => `${fmtDate(j.at)} · ${j.kind}: ${j.error}`), ...rt.channelErrors.map(c => `${c.bot}: ${c.error}`)];
     return el('div', { class: 'stack' },
       el('div', { class: 'stats' },
@@ -36,7 +37,6 @@ window.ADMIN_EXTRA = {
         el('div', { class: 'card' }, el('h3', { text: 'Платформа' }), el('div', { class: 'kv' },
           el('div', {}, el('span', { text: 'Зарегистрировано пользователей' }), el('b', { text: String(s.users) })),
           el('div', {}, el('span', { text: 'Новых пользователей за месяц' }), el('b', { text: String(ins.newUsers[11]) })),
-          el('div', {}, el('span', { text: 'Активных студентов Академии' }), el('b', { text: String(ins.students) })),
           el('div', {}, el('span', { text: 'Агентов работает / установлено' }), el('b', { text: `${rt.live} / ${rt.installations}` })),
           el('div', {}, el('span', { text: 'Сообщений за 24 ч' }), el('b', { text: rt.messages24h.toLocaleString('ru-RU') })),
           el('div', {}, el('span', { text: 'Движок ответов' }), el('b', { text: rt.aiMode }))))),
@@ -49,7 +49,7 @@ window.ADMIN_EXTRA = {
     const box = el('div', { class: 'stack' }), detail = el('div');
     const form = el('form', { class: 'card add-row wrap-row', novalidate: true, style: 'margin:0' },
       el('input', { name: 'q', type: 'search', placeholder: 'Поиск по имени или email', 'aria-label': 'Поиск пользователей', value: params.get('q') || '' }),
-      el('select', { name: 'role', 'aria-label': 'Фильтр по роли' }, [['', 'Все роли'], ['USER', 'Пользователи'], ['STUDENT', 'Студенты'], ['SUPPORT', 'Поддержка'], ['ADMIN', 'Админы']].map(([v, t]) => el('option', { value: v, text: t }))),
+      el('select', { name: 'role', 'aria-label': 'Фильтр по роли' }, [['', 'Все роли'], ['USER', 'Клиенты'], ['SUPPORT', 'Поддержка'], ['ADMIN', 'Админы']].map(([v, t]) => el('option', { value: v, text: t }))),
       el('select', { name: 'status', 'aria-label': 'Фильтр по статусу' }, [['', 'Любой статус'], ['active', 'Активен'], ['suspended', 'Заблокирован']].map(([v, t]) => el('option', { value: v, text: t }))),
       el('button', { class: 'btn', type: 'submit', text: 'Найти' }));
     const body = el('tbody');
@@ -68,7 +68,7 @@ window.ADMIN_EXTRA = {
       const d = await api(`/api/admin/users/${id}`), u = d.user;
       const reason = el('input', { placeholder: 'Причина (видна в журнале)', 'aria-label': 'Причина блокировки' });
       const pause = el('input', { type: 'checkbox', checked: true });
-      const roleSel = el('select', { 'aria-label': `Роль для ${u.email}` }, ['USER', 'STUDENT', 'SUPPORT', 'ADMIN'].map(r => el('option', { value: r, selected: r === u.role, text: ROLE_RU[r] })));
+      const roleSel = el('select', { 'aria-label': `Роль для ${u.email}` }, ['USER', 'SUPPORT', 'ADMIN'].map(r => el('option', { value: r, selected: r === u.role, text: ROLE_RU[r] })));
       const section = (title, rows, empty) => el('div', { class: 'card' }, el('h3', { text: title }), rows.length ? el('div', { class: 'minis' }, rows) : el('p', { text: empty }));
       detail.replaceChildren(el('div', { class: 'stack' },
         el('div', { class: 'card' },
@@ -88,7 +88,6 @@ window.ADMIN_EXTRA = {
         el('div', { class: 'grid g2' },
           section('Заказы', d.orders.map(o => el('div', { class: 'mini' }, el('div', {}, el('b', { text: o.product }), el('small', { text: `${o.plan} · ${money(o.amount, o.currency)}${PER[o.interval]} · ${fmtDate(o.createdAt)}` })), el('span', { class: `badge st-${o.status.toLowerCase()}`, text: o.status }))), 'Заказов нет.'),
           section('Агенты', d.agents.map(a => el('div', { class: 'mini' }, el('div', {}, el('b', { text: a.name }), el('small', { text: a.channels || 'канал не подключён' })), el('span', { class: `badge ${a.live ? 'on' : 'off'}`, text: a.live ? 'Работает' : 'Выключен' }))), 'Агенты не установлены.'),
-          section('Академия', d.academy.map(m => el('div', { class: 'mini' }, el('div', {}, el('b', { text: m.plan }), el('small', { text: `${fmtDate(m.startsAt)} → ${fmtDate(m.endsAt)}${m.mentorship ? ' · менторство' : ''}` })), el('span', { class: `badge ${m.active ? 'on' : 'off'}`, text: m.active ? 'Активен' : 'Завершён' }))), 'Нет доступа к Академии.'),
           section('Поддержка', d.tickets.map(t => el('a', { class: 'mini', href: `#support`, onclick: () => sessionStorage?.setItem?.('openTicket', t.id) }, el('div', {}, el('b', { text: `#${t.number} ${t.subject}` }), el('small', { text: fmtDate(t.updatedAt) })), el('span', { class: `badge ${TST[t.status][1]}`, text: TST[t.status][0] }))), 'Обращений нет.')),
         section('Последние действия', d.activity.map(a => el('div', { class: 'mini' }, el('div', {}, el('b', { text: a.action }), el('small', { text: ago(a.at) })))), 'Действий пока нет.')));
       detail.scrollIntoView({ behavior: 'smooth' });
@@ -149,13 +148,13 @@ window.ADMIN_EXTRA = {
   // ---------------- Announcements ----------------
   async announcements({ say, show }) {
     const { announcements } = await api('/api/admin/announcements');
-    const AUD = { ALL: 'Все', CUSTOMERS: 'Клиенты агентов', STUDENTS: 'Студенты Академии' };
+    const AUD = { ALL: 'Все', CUSTOMERS: 'Клиенты агентов', STUDENTS: 'Студенты (старое)' };
     const form = a => {
       const f = el('form', { class: 'card', novalidate: true }, el('h3', { text: a ? `Изменить: ${a.title}` : 'Новое объявление' }),
         field('Заголовок', el('input', { name: 'title', value: a?.title || '', maxlength: 120 })),
         field('Сообщение', el('textarea', { name: 'body', rows: 3, maxlength: 2000, text: a?.body || '' })),
         el('div', { class: 'grid g2' },
-          field('Кто видит', el('select', { name: 'audience' }, Object.entries(AUD).map(([v, t]) => el('option', { value: v, selected: a?.audience === v, text: t })))),
+          field('Кто видит', el('select', { name: 'audience' }, Object.entries(AUD).filter(([v]) => v !== 'STUDENTS').map(([v, t]) => el('option', { value: v, selected: a?.audience === v, text: t })))),
           field('Стиль', el('select', { name: 'level' }, [['INFO', 'Инфо'], ['IMPORTANT', 'Важное (выделено)']].map(([v, t]) => el('option', { value: v, selected: a?.level === v, text: t }))))),
         el('div', { class: 'grid g2' }, field('Показывать с', el('input', { name: 'startsAt', type: 'datetime-local', value: localInput(a?.startsAt) }), 'Пусто = сейчас'),
           field('Показывать до', el('input', { name: 'endsAt', type: 'datetime-local', value: localInput(a?.endsAt) }), 'Пусто = пока не завершите')),

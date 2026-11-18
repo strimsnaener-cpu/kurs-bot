@@ -2,7 +2,7 @@
 // (User, Session, Organization, Membership, AuditLog) so the port to Prisma is 1:1.
 import { DatabaseSync } from 'node:sqlite';
 
-// Orders sell either an agent plan or an Academy membership. Snapshot columns keep what was bought,
+// Orders sell agent plans (ACADEMY rows are legacy from the removed Academy). Snapshot columns keep what was bought,
 // so later price edits never change an order.
 const ordersTable = name => `CREATE TABLE IF NOT EXISTS ${name} (
   id TEXT PRIMARY KEY,
@@ -193,7 +193,7 @@ CREATE TABLE IF NOT EXISTS deletion_requests (
   code TEXT PRIMARY KEY, external_user_id TEXT NOT NULL,
   created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
 );
--- ---------- Stage 6: VIP Academy ----------
+-- ---------- Legacy: VIP Academy (removed; tables kept so old databases and order history stay valid) ----------
 CREATE TABLE IF NOT EXISTS academy_plans (
   id TEXT PRIMARY KEY, name TEXT NOT NULL, description TEXT NOT NULL DEFAULT '',
   features TEXT NOT NULL DEFAULT '[]', mentorship INTEGER NOT NULL DEFAULT 0,
@@ -332,4 +332,6 @@ function migrate(db) {
   if (!has('users', 'suspended_at')) db.exec('ALTER TABLE users ADD COLUMN suspended_at TEXT; ALTER TABLE users ADD COLUMN suspend_reason TEXT;');
   if (!has('channel_connections', 'token_expires_at')) db.exec('ALTER TABLE channel_connections ADD COLUMN token_expires_at TEXT');
   if (!has('channel_connections', 'token_refreshed_at')) db.exec('ALTER TABLE channel_connections ADD COLUMN token_refreshed_at TEXT');
+  // The Academy was removed: its tables and the ACADEMY order type stay only so old databases keep their history.
+  db.exec("UPDATE users SET role = 'USER' WHERE role = 'STUDENT'");
 }

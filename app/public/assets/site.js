@@ -1,19 +1,15 @@
 // Public site pages: Pricing (live prices), Contact (support form), Support (ticket threads).
-const CATEGORIES = { GENERAL: 'Общий вопрос', BILLING: 'Оплата и счета', TECHNICAL: 'Техническая проблема', ACADEMY: 'VIP Академия', CUSTOM: 'Индивидуальное AI-решение для моего бизнеса' };
+const CATEGORIES = { GENERAL: 'Общий вопрос', BILLING: 'Оплата и счета', TECHNICAL: 'Техническая проблема', CUSTOM: 'Внедрение агентов и обучение команды' };
+const LEGACY_CATEGORY = { ACADEMY: 'Обучение' };   // tickets created before the Academy was removed
 const STATUS = { OPEN: ['Уже занимаемся', 'st-pending'], PENDING: ['Ждём вашего ответа', 'st-paid'], CLOSED: ['Закрыто', 'off'] };
 
 const sitePages = {
   async pricing() {
-    const [ag, ac] = await Promise.all([api('/api/agents').catch(() => ({ agents: [] })), api('/api/academy').catch(() => ({ plans: [] }))]);
+    const ag = await api('/api/agents').catch(() => ({ agents: [] }));
     $('[data-agent-prices]').replaceChildren(...ag.agents.map(a => el('a', { class: 'card hover price-card', href: `agent.html?slug=${encodeURIComponent(a.slug)}` },
       icon(a.icon), el('h3', { text: a.name }), el('p', { text: a.tagline }),
       a.fromPrice ? el('div', { class: 'price' }, `от ${money(a.fromPrice.amount, a.fromPrice.currency)}`, el('small', { text: PER[a.fromPrice.interval] })) : null,
       el('span', { class: 'btn sm', style: 'margin-top:16px', text: 'Смотреть тарифы' }))));
-    $('[data-academy-prices]').replaceChildren(...ac.plans.map(p => el('div', { class: `card plan ${p.mentorship ? 'feat' : ''}` },
-      el('h3', { text: p.name }), el('p', { text: p.description }),
-      el('div', { class: 'price-list' }, p.prices.map(x => el('div', {}, el('b', { text: money(x.amount, x.currency) }), el('small', { text: PER[x.interval] })))),
-      el('ul', {}, p.features.map(f => el('li', { text: f }))),
-      el('a', { class: `btn ${p.mentorship ? 'primary' : ''}`, href: 'academy.html#plans', text: 'Вступить в Академию' }))));
   },
 
   async contact() {
@@ -58,7 +54,7 @@ const sitePages = {
           try { await api(`/api/support/tickets/${t.id}/reply`, { body: d.body, t: token || undefined }); await render(); } catch (e) { showError(err, e); }
         });
         root.replaceChildren(el('div', { class: 'card' },
-          el('div', { class: 'row-head' }, el('div', {}, el('span', { class: 'eyebrow', text: `Обращение №${t.number} · ${CATEGORIES[t.category]}` }), el('h2', { text: t.subject })),
+          el('div', { class: 'row-head' }, el('div', {}, el('span', { class: 'eyebrow', text: `Обращение №${t.number} · ${CATEGORIES[t.category] || LEGACY_CATEGORY[t.category] || t.category}` }), el('h2', { text: t.subject })),
             el('span', { class: `badge ${STATUS[t.status][1]}`, text: STATUS[t.status][0] })),
           el('div', { class: 'chat-log thread' }, t.messages.map(m => el('div', { class: `msg ${m.fromStaff ? 'in' : 'out'}` }, el('span', { text: m.body }), el('small', { text: `${m.fromStaff ? m.author : 'Вы'} · ${new Date(m.createdAt).toLocaleString('ru-RU')}` })))),
           form,

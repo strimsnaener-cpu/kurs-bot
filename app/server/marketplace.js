@@ -1,6 +1,5 @@
 // Marketplace: catalog, orders, reviews, and the admin endpoints that manage them.
 import crypto from 'node:crypto';
-import { applyAcademyOrder } from './academy.js';
 
 const CATEGORIES = ['sales', 'support', 'ops'];
 const ICONS = ['chat', 'camera', 'cart', 'shield', 'chart', 'bolt'];
@@ -85,8 +84,8 @@ export function marketplace({ db, HttpError, requireUser, requireAdmin, audit, t
   const orderOut = o => ({ id: o.id, status: o.status, productType: o.product_type, agentId: o.agent_id, agentName: o.agent_name, agentSlug: o.agent_slug, planName: o.plan_name,
     interval: o.interval, amount: o.amount, currency: o.currency, createdAt: o.created_at, paidAt: o.paid_at,
     ...(o.email ? { customerEmail: o.email, customerName: o.user_name } : {}) });
-  const ORDER_SQL = `SELECT o.*, COALESCE(a.name, ap.name) AS agent_name, a.slug AS agent_slug, u.email, u.name AS user_name
-                     FROM orders o LEFT JOIN agents a ON a.id = o.agent_id LEFT JOIN academy_plans ap ON ap.id = o.academy_plan_id
+  const ORDER_SQL = `SELECT o.*, COALESCE(a.name, o.plan_name) AS agent_name, a.slug AS agent_slug, u.email, u.name AS user_name
+                     FROM orders o LEFT JOIN agents a ON a.id = o.agent_id
                      JOIN users u ON u.id = o.user_id`;
   const ownsAgent = (userId, agentId) => !!q("SELECT 1 FROM orders WHERE user_id = ? AND agent_id = ? AND status = 'PAID'").get(userId, agentId);
 
@@ -305,7 +304,6 @@ export function marketplace({ db, HttpError, requireUser, requireAdmin, audit, t
       if (!allowed.includes(to)) throw new HttpError(400, `Нельзя перевести заказ из ${o.status} в ${to}`);
       tx(() => {
         q('UPDATE orders SET status = ?, paid_at = CASE WHEN ? = \'PAID\' THEN ? ELSE paid_at END WHERE id = ?').run(to, to, now(), id);
-        if (o.product_type === 'ACADEMY') applyAcademyOrder(db, o, to);   // grant or revoke Academy access
       });
       audit(admin.id, 'order.status_changed', id, { from: o.status, to });
       return { order: orderOut(q(`${ORDER_SQL} WHERE o.id = ?`).get(id)) };

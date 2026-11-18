@@ -5,7 +5,6 @@ import { fileURLToPath } from 'node:url';
 import { openDb } from './db.js';
 import { createApp } from './app.js';
 import { seedCatalog } from './seed.js';
-import { seedAcademy } from './academy-seed.js';
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const isProd = process.env.NODE_ENV === 'production';
@@ -20,7 +19,6 @@ fs.mkdirSync(path.dirname(dbFile), { recursive: true });
 
 const db = openDb(dbFile);
 if (seedCatalog(db)) console.log('Seeded the marketplace with 5 starter agents.');
-if (seedAcademy(db)) console.log('Seeded the Academy with the six-month program outline.');
 const app = createApp({
   db,
   encryptionKey: process.env.ENCRYPTION_KEY,

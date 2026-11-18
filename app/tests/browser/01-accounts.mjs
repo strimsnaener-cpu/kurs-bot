@@ -48,7 +48,7 @@ try {
   await p.fill('#code', totp(secret, Date.now() + 30000)); await p.click('button[type=submit]'); await p.waitForURL('**/dashboard.html');
   await p.waitForSelector('[data-admin]:not([hidden]) tbody tr'); 
   if (await p.$('tbody img')) throw new Error('XSS: name rendered as HTML'); step('admin panel visible; hostile user name shown as plain text');
-  await p.selectOption('select[aria-label="Роль для student@example.com"]', 'STUDENT'); await p.waitForSelector('[data-flash]:text("роль «Студент»")'); step('role changed from admin table');
+  await p.selectOption('select[aria-label="Роль для student@example.com"]', 'SUPPORT'); await p.waitForSelector('[data-flash]:text("роль «Поддержка»")'); step('role changed from admin table');
   await p.screenshot({ path: SHOTS + '/s3-admin.png', fullPage: true });
   const m = await b.newPage({ viewport: { width: 390, height: 844 } });
   for (const f of ['login', 'register', 'reset']) { await m.goto(`${B}/${f}.html`); if (await m.evaluate(() => document.documentElement.scrollWidth > innerWidth)) errs.push(f + ' mobile overflow'); }

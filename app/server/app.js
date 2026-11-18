@@ -6,11 +6,10 @@ import crypto from 'node:crypto';
 import * as A from './auth.js';
 import { marketplace } from './marketplace.js';
 import { agentsApi } from './agents-api.js';
-import { academy } from './academy.js';
 import { ops } from './ops.js';
 import { createEngine } from './runtime/engine.js';
 
-const ROLES = ['USER', 'STUDENT', 'SUPPORT', 'ADMIN'];
+const ROLES = ['USER', 'SUPPORT', 'ADMIN'];
 const EMAIL_RE = /^[^\s@]{1,64}@[^\s@]{1,255}\.[^\s@]{2,}$/;
 const SESSION_MS = 30 * 24 * 3600e3;
 const MIME = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon' };
@@ -289,9 +288,9 @@ export function createApp({ db, encryptionKey, publicDir, baseUrl = 'http://loca
     }],
   ];
 
-  // Feature modules plug in here (marketplace now; agents runtime, academy, billing later).
+  // Feature modules plug in here (marketplace, agents runtime, ops; billing later).
   const kit = { db, HttpError, requireUser, requireAdmin, audit, throttle, str, engine, sysLog, publicUser, publicBase: (env.PUBLIC_URL || baseUrl).replace(/\/$/, ''), sendMail: (...a) => sendMail(...a) };
-  for (const mod of [marketplace, agentsApi, academy, ops]) {
+  for (const mod of [marketplace, agentsApi, ops]) {
     const m = mod(kit);
     Object.assign(routes, m.routes);
     paramRoutes.push(...m.paramRoutes);

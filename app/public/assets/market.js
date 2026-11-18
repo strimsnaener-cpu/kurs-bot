@@ -130,15 +130,15 @@ const marketPages = {
     const err = el('div', { class: 'alert err', role: 'alert', hidden: true });
     root.replaceChildren(
       el('span', { class: 'eyebrow', text: `Заказ ${order.id.slice(0, 8).toUpperCase()}` }),
-      el('h1', { text: order.status === 'PAID' ? (order.productType === 'ACADEMY' ? 'Добро пожаловать в VIP Академию!' : 'Спасибо! Ваш агент готов.') : order.status === 'PENDING' ? 'Ваш заказ оформлен' : `Заказ: ${label.toLowerCase()}` }),
+      el('h1', { text: order.status === 'PAID' ? 'Спасибо! Ваш агент готов.' : order.status === 'PENDING' ? 'Ваш заказ оформлен' : `Заказ: ${label.toLowerCase()}` }),
       el('div', { class: 'kv' },
-        el('div', {}, el('span', { text: order.productType === 'ACADEMY' ? 'Участие' : 'Агент' }), el('b', { text: order.agentName })),
+        el('div', {}, el('span', { text: 'Агент' }), el('b', { text: order.agentName })),
         el('div', {}, el('span', { text: 'Тариф' }), el('b', { text: order.planName })),
         el('div', {}, el('span', { text: 'Цена' }), el('b', {}, money(order.amount, order.currency), el('small', { class: 'muted', text: PER[order.interval] }))),
         el('div', {}, el('span', { text: 'Статус' }), el('span', { class: `badge st-${order.status.toLowerCase()}`, text: label })),
         el('div', {}, el('span', { text: 'Создан' }), el('b', { text: fmtDate(order.createdAt) }))),
       order.status === 'PENDING' ? el('p', { class: 'order-note' }, 'Онлайн-оплата картой пока подключается. До этого оплату подтверждает наша команда: мы напишем вам на ',
-        el('b', { text: order.customerEmail || 'ваш email' }), ` и пришлём реквизиты для оплаты. ${order.productType === 'ACADEMY' ? 'Доступ к Академии откроется' : 'Агент станет доступен в кабинете'} сразу после подтверждения оплаты.`) : null,
+        el('b', { text: order.customerEmail || 'ваш email' }), ` и пришлём реквизиты для оплаты. Агент станет доступен в кабинете сразу после подтверждения оплаты.`) : null,
       err,
       el('div', { class: 'order-actions' },
         el('a', { class: 'btn primary', href: 'dashboard.html', text: 'Перейти в кабинет' }),
@@ -146,14 +146,13 @@ const marketPages = {
           e.target.disabled = true;
           try { await api(`/api/orders/${order.id}/cancel`, {}); location.reload(); } catch (x) { showError(err, x); e.target.disabled = false; }
         } }) : null,
-        order.productType === 'ACADEMY' ? el('a', { class: 'btn', href: 'learn.html', text: 'Моё обучение' }) : el('a', { class: 'btn', href: `agent.html?slug=${encodeURIComponent(order.agentSlug)}`, text: 'Смотреть агента' })));
+        el('a', { class: 'btn', href: `agent.html?slug=${encodeURIComponent(order.agentSlug)}`, text: 'Смотреть агента' })));
   },
 
   async dashboard() {
     const mine = $('[data-my-agents]'), orders = $('[data-orders]');
-    const [a, o, ac] = await Promise.all([api('/api/my/agents').catch(() => null), api('/api/orders').catch(() => null), api('/api/academy/me').catch(() => null)]);
+    const [a, o] = await Promise.all([api('/api/my/agents').catch(() => null), api('/api/orders').catch(() => null)]);
     if (!a || !o) return;
-    if (ac?.membership.active) $('[data-admin-link]').before(el('a', { class: 'btn', href: 'learn.html', text: 'Моё обучение' }));
     const open = async x => {
       try { const r = x.installationId ? { id: x.installationId } : await api('/api/installations', { orderId: x.orderId }); location.href = `setup.html?id=${encodeURIComponent(r.id)}`; }
       catch (e) { mine.prepend(el('div', { class: 'alert err', text: e.message })); }
@@ -341,7 +340,7 @@ marketPages.admin = async function () {
     },
   };
 
-  // Extra tabs (Academy etc.) registered by other scripts.
+  // Extra tabs registered by other scripts (admin-ops.js).
   for (const [k, f] of Object.entries(window.ADMIN_EXTRA || {})) views[k] = () => f({ say, show });
 
   if (supportOnly) { $$('.tabs a').forEach(a => { if (a.hash !== '#support') a.remove(); }); $('.dash-head h1').textContent = 'Поддержка клиентов'; }
